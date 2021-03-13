@@ -19,6 +19,8 @@ The library contains:
 By default, the main library header `ml/all.h` will also include some C++ math headers, some boost math headers and parts of the compositional numeric library (CNL).
 This behavior can be disabled by defining `ML_NO_DEPS` before including `all.h`, and a fine-grain control is provided by the switches `ML_NO_CPP, ML_NO_BOOST, ML_NO_CNL`.
 
+The tests rely on the [Boost.Test](https://www.boost.org) framework.
+
 ## Setup
 
 As a header-only library, just include `all.h`. Note that the CNL needs a C++20-compatible tool chain.
