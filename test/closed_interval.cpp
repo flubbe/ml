@@ -1,6 +1,3 @@
-/* boost headers */
-#include <boost/algorithm/clamp.hpp>
-
 /* boost test framework. */
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_ALTERNATIVE_INIT_API

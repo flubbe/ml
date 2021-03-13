@@ -1,12 +1,5 @@
 /* C++ headers */
-#include <vector>
 #include <random>
-#include <algorithm>
-#include <iostream>
-#include <iomanip>
-
-/* boost headers */
-#include <boost/algorithm/clamp.hpp>
 
 /* boost test framework. */
 #define BOOST_TEST_MAIN
