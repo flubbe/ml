@@ -31,4 +31,4 @@ Tested on Linux, GCC 10.2 (with C++-14 enabled), CMake 3.19.6.
 
  - [Compositional Numeric Library](https://github.com/johnmcfarlane/cnl) 
  - [glm](https://github.com/g-truc/glm)
- - [DirectXMath](https://github.com/microsoft/DirectXMath/tree/master/Inc)
+ - [DirectXMath](https://github.com/microsoft/DirectXMath)
