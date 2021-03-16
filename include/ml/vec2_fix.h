@@ -21,7 +21,7 @@ struct vec2_fixed
     {
         struct
         {
-            type x, y;
+            type x{0}, y{0};
         };
         struct
         {
@@ -29,46 +29,37 @@ struct vec2_fixed
         };
     };
 
-    vec2_fixed()
-    {}
+    vec2_fixed() = default;
     
     vec2_fixed(const vec2_fixed& Other)
-        : x(Other.x), y(Other.y)
+        : x{Other.x}, y{Other.y}
     {}
 
-    vec2_fixed( const type& in_x, const type& in_y )
-        : x(in_x), y(in_y)
+    vec2_fixed(const type& in_x, const type& in_y)
+        : x{in_x}, y{in_y}
     {}
 
-    vec2_fixed( float in_x, float in_y )
-        : x(in_x), y(in_y)
+    vec2_fixed(float in_x, float in_y)
+        : x{in_x}, y{in_y}
     {}
 
     /*
      * Vector operations.
      */
-    const type dot_product(vec2_fixed<F> Other) const
+
+    const auto dot_product(vec2_fixed<F> Other) const -> decltype(x * Other.x + y * Other.y)
     {
-        return type{x * Other.x} + type{y * Other.y};
+        return x * Other.x + y * Other.y;
     }
     
     const type length_squared() const
     {
         return dot_product(*this);
     }
-    
-    const type length() const
+        
+    const auto area(vec2_fixed<F> Other) const -> decltype(x * Other.y - y * Other.x)
     {
-#ifdef __GNUC__
-        return sqrtf(ml::to_float(length_squared()));
-#else
-        return std::sqrtf(ml::to_float(length_squared()));
-#endif
-    }
-    
-    const type area(vec2_fixed<F> Other) const
-    {
-        return type{x * Other.y} - type{y * Other.x};
+        return x * Other.y - y * Other.x;
     }
     
     int area_sign(vec2_fixed<F> Other) const
@@ -76,7 +67,10 @@ struct vec2_fixed
         return boost::math::sign(area(Other));
     }
     
-    /* operators. */
+    /*
+     * operators. 
+     */
+
     const vec2_fixed<F> operator+(const vec2_fixed<F>& Other) const
 	{
         return {x + Other.x, y + Other.y};
@@ -89,16 +83,19 @@ struct vec2_fixed
 	{
         return {-x,-y};
 	}
-    const vec2_fixed<F> operator*(float S) const
+    const vec2_fixed<F> operator*(float s) const
 	{
-        return {x * S, y * S};
+        return {x * s, y * s};
 	}
-    const vec2_fixed<F> operator/(float S) const
+    const vec2_fixed<F> operator/(float s) const
     {
-        return {x / S, y / S};
+        return {x / s, y / s};
     }
     
-    /* assignment */
+    /*
+     * assignments.
+     */
+
     vec2_fixed<F>& operator=(vec2_fixed<F> Other)
     {
         x = Other.x;
@@ -115,18 +112,11 @@ struct vec2_fixed
         *this = *this - Other;
         return *this;
     }
-    vec2_fixed<F>& operator*=(type S)
-    {
-        *this = *this * S;
-        return *this;
-    }
-    vec2_fixed<F>& operator/=(type S)
-    {
-        *this = *this / S;
-        return *this;
-    }
  
-    /* exact comparisons */
+    /* 
+     * exact comparisons.
+     */
+
     bool operator==(vec2_fixed<F> Other) const
     {
         return x==Other.x && y==Other.y;
@@ -136,7 +126,10 @@ struct vec2_fixed
         return x!=Other.x || y!=Other.y;
     }
 
-    /* access. */
+    /* 
+     * element access. 
+     */
+    
     type& operator[](int c)
     {
         assert(c>=0 && c<2);
