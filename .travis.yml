@@ -21,6 +21,7 @@ jobs:
           - sourceline: 'ppa:ubuntu-toolchain-r/test'        
         packages:
           - libboost-dev
+          - libboost-test-dev
           - cmake 
           - ninja-build
     env:
