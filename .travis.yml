@@ -32,7 +32,7 @@ before_install:
   eval "${MATRIX_EVAL}"
 
 script:
-  - mkdir deps && cd deps
+  - mkdir 3rd-party && mkdir 3rd-party/deps && cd 3rd-party/deps
   - git clone https://github.com/johnmcfarlane/cnl.git && cd ..
   - mkdir bin && mkdir build && cd build
   - cmake .. && ninja
