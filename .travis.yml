@@ -1,0 +1,35 @@
+dist: focal
+
+sudo: false
+
+language: cpp
+
+addons:
+  apt:
+    packages:
+    - ninja-build
+
+env:
+  global:
+    CMAKE_GENERATOR=Ninja
+
+matrix:
+  include:
+  - os: linux
+    compiler: gcc
+    addons:
+      apt:
+        sources:
+          ubuntu-toolchain-r-test
+        packages:
+          - libboost-dev
+          - cmake 
+    env:
+      MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+      TARGET=x86_64-linux-gnu
+
+before_install:
+  eval "${MATRIX_EVAL}"
+
+script:
+  - cmake --version
