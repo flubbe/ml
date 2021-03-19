@@ -1,7 +1,5 @@
+os: linux
 dist: focal
-
-sudo: false
-
 language: cpp
 
 addons:
@@ -13,7 +11,7 @@ env:
   global:
     CMAKE_GENERATOR=Ninja
 
-matrix:
+jobs:
   include:
   - os: linux
     compiler: gcc
@@ -32,7 +30,7 @@ before_install:
   eval "${MATRIX_EVAL}"
 
 script:
-  - mkdir ml/deps && cd ml/deps
+  - mkdir deps && cd deps
   - git clone https://github.com/johnmcfarlane/cnl.git && cd ..
   - mkdir bin && mkdir build && cd build
   - cmake .. && ninja
