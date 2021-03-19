@@ -27,7 +27,7 @@ As a header-only library, just include `all.h`. Note that the CNL needs a C++20-
 
 By default, SSE versions of the functions and classes are used. Set `ML_NO_SIMD` to use non-SSE versions. Set `ML_INCLUDE_SIMD` to include both SSE and non-SSE versions of `vec4` and `mat4x4` (the SSE versions are found in the namespace `simd`). Currently the library uses up to SSE 4.1.
 
-Tested on Linux, GCC 10.2 (with C++-20 enabled), CMake 3.19.6.
+Tested on Linux, GCC 10.2 (with C++-17 enabled), CMake 3.19.6.
 
 ## References and other libraries
 
