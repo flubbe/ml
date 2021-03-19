@@ -2,11 +2,6 @@ os: linux
 dist: focal
 language: cpp
 
-addons:
-  apt:
-    packages:
-    - ninja-build
-
 env:
   global:
     CMAKE_GENERATOR=Ninja
