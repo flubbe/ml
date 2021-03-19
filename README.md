@@ -1,4 +1,7 @@
+
 # Simple header-only mathematics library
+
+[![Build Status](https://travis-ci.com/flubbe/ml.svg?branch=main)](https://travis-ci.com/flubbe/ml)
 
 ## Description
 
