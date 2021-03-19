@@ -22,4 +22,3 @@ cd ../ml
 
 mkdir bin
 mkdir build
-cd build
