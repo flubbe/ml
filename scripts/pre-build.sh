@@ -13,16 +13,13 @@ wget https://github.com/johnmcfarlane/cnl/archive/refs/tags/v1.1.2.tar.gz
 tar -xf v1.1.2.tar.gz
 rm v1.1.2.tar.gz
 mv cnl-1.1.2 cnl
-
-# switch back to main folder
-cd ..
+cd ../ml
 
 
 #
 # Set up folder structure for build.
 #
 
-mkdir ml/bin
-mkdir ml/build
-cd ml/build
-
+mkdir bin
+mkdir build
+cd build
