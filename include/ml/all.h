@@ -21,6 +21,8 @@
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
 
+#pragma once
+
 #ifdef ML_NO_DEPS
 
 #define ML_NO_CPP
@@ -48,8 +50,8 @@
 #ifndef ML_NO_CNL
 
 /* CNL for most fixed-point types. */
-#include <cnl/static_number.h>
-#include <cnl/num_traits.h>
+#include "cnl/static_number.h"
+#include "cnl/num_traits.h"
 
 /* CNL support functions. */
 #include "cnl_support.h"
