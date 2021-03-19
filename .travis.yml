@@ -18,10 +18,11 @@ jobs:
     addons:
       apt:
         sources:
-          ubuntu-toolchain-r-test
+          - sourceline: 'ppa:ubuntu-toolchain-r/test'        
         packages:
           - libboost-dev
           - cmake 
+          - ninja-build
     env:
       MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
       TARGET=x86_64-linux-gnu
