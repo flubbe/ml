@@ -30,7 +30,7 @@ As a header-only library, just include `all.h`. Note that the CNL needs a C++20-
 
 By default, SSE versions of the functions and classes are used. Set `ML_NO_SIMD` to use non-SSE versions. Set `ML_INCLUDE_SIMD` to include both SSE and non-SSE versions of `vec4` and `mat4x4` (the SSE versions are found in the namespace `simd`). Currently the library uses up to SSE 4.1.
 
-To build the tests, first run `./scripts/pre-build.sh` from the root folder, which creates the build directory structure and downloads [CNL](https://github.com/johnmcfarlane/cnl), release 1.1.2. Then run `./scripts/build.sh` from the root folder. The tests are written into the `bin -directory.
+To build the tests, first run `./scripts/pre-build.sh` from the root folder, which creates the build directory structure and downloads [CNL](https://github.com/johnmcfarlane/cnl), release 1.1.2. Then run `./scripts/build.sh` from the root folder. The tests are written into the `bin`-directory.
 
 Tested on Linux, GCC 10.2 (with C++-17 enabled), CMake 3.19.6.
 
