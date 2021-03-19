@@ -26,13 +26,13 @@ The tests rely on the [Boost.Test](https://www.boost.org) framework.
 
 ## Setup
 
-As a header-only library, just include `all.h`. Note that the CNL needs a C++20-compatible tool chain.
+As a header-only library, just include `all.h` (note that CNL 1.1.2 needs a C++17 compatible tool chain, and the master branch needs a C++20 compatible tool chain).
 
 By default, SSE versions of the functions and classes are used. Set `ML_NO_SIMD` to use non-SSE versions. Set `ML_INCLUDE_SIMD` to include both SSE and non-SSE versions of `vec4` and `mat4x4` (the SSE versions are found in the namespace `simd`). Currently the library uses up to SSE 4.1.
 
 To build the tests, first run `./scripts/pre-build.sh` from the root folder, which creates the build directory structure and downloads [CNL](https://github.com/johnmcfarlane/cnl), release 1.1.2. Then run `./scripts/build.sh` from the root folder. The tests are written into the `bin`-directory.
 
-Tested on Linux, GCC 10.2 (with C++-17 enabled), CMake 3.19.6.
+Tested on Linux, GCC 10.2 (with C++17 enabled), CMake 3.19.6.
 
 ## References and other libraries
 
