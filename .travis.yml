@@ -33,6 +33,6 @@ before_install:
 
 script:
   - mkdir ../3rd-party && cd ../3rd-party
-  - git clone https://github.com/johnmcfarlane/cnl.git && cd ..
+  - wget https://github.com/johnmcfarlane/cnl/archive/refs/tags/v1.1.2.tar.gz && tar -xvf v1.1.2.tar.gz && rm v1.1.2.tar.gz && mv cnl-1.1.2 cnl && cd ..
   - mkdir ml/bin && mkdir ml/build && cd ml/build
   - cmake .. && ninja
