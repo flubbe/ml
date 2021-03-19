@@ -33,6 +33,6 @@ before_install:
 
 script:
   - mkdir 3rd-party && mkdir 3rd-party/deps && cd 3rd-party/deps
-  - git clone https://github.com/johnmcfarlane/cnl.git && cd ..
+  - git clone https://github.com/johnmcfarlane/cnl.git && cd ../..
   - mkdir bin && mkdir build && cd build
   - cmake .. && ninja
