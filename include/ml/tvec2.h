@@ -12,46 +12,51 @@ namespace ml
 {
 
 /** 2-dimensional vector */
-template <typename T>
+template<typename T>
 struct tvec2
 {
-    using type=T;
+    using type = T;
 
     T x, y;
 
     tvec2()
-    {}
-    
-    tvec2(const vec2& o)
-        : x(o.x), y(o.y)
-    {}
+    {
+    }
 
-    tvec2( const T& in_x, const T& in_y )
-        : x(in_x), y(in_y)
-    {}
-    
+    tvec2(const vec2& o)
+    : x(o.x)
+    , y(o.y)
+    {
+    }
+
+    tvec2(const T& in_x, const T& in_y)
+    : x(in_x)
+    , y(in_y)
+    {
+    }
+
     /* operators. */
     const tvec2 operator+(const tvec2& o) const
-	{
+    {
         return {x + o.x, y + o.y};
-	}
+    }
     const tvec2 operator-(const tvec2& o) const
-	{
+    {
         return {x - o.x, y - o.y};
-	}
+    }
     const tvec2 operator-() const
-	{
-        return {-x,-y};
-	}
+    {
+        return {-x, -y};
+    }
     const tvec2 operator*(float S) const
-	{
+    {
         return {x * S, y * S};
-	}
+    }
     const tvec2 operator/(float S) const
     {
         return {x / S, y / S};
     }
-    
+
     /* assignment */
     tvec2& operator=(const tvec2& o)
     {
@@ -83,12 +88,12 @@ struct tvec2
     /* access. */
     type& operator[](int c)
     {
-        assert(c>=0 && c<2);
+        assert(c >= 0 && c < 2);
         return (&x)[c];
     }
     const type operator[](int c) const
     {
-        assert(c>=0 && c<2);
+        assert(c >= 0 && c < 2);
         return (&x)[c];
     }
 };

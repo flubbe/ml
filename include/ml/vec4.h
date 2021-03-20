@@ -9,15 +9,14 @@
  */
 
 #if defined(ML_USE_SIMD)
-#   include "simd/vec4.h"
+#    include "simd/vec4.h"
 namespace ml
 {
-    using vec4 = simd::vec4;
+using vec4 = simd::vec4;
 }; /* namespace ml */
 #elif defined(ML_INCLUDE_SIMD)
-#   include "x86/vec4.h"
-#   include "simd/vec4.h"
+#    include "x86/vec4.h"
+#    include "simd/vec4.h"
 #else
-#   include "x86/vec4.h"
+#    include "x86/vec4.h"
 #endif
-

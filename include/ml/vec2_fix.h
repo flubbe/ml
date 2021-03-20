@@ -12,10 +12,10 @@ namespace ml
 {
 
 /** 2-dimensional fixed-point vector */
-template <size_t F>
+template<size_t F>
 struct vec2_fixed
 {
-    using type=cnl::scaled_integer<int32_t,cnl::power<-F>>;
+    using type = cnl::scaled_integer<int32_t, cnl::power<-F>>;
 
     union
     {
@@ -30,18 +30,24 @@ struct vec2_fixed
     };
 
     vec2_fixed() = default;
-    
+
     vec2_fixed(const vec2_fixed& Other)
-        : x{Other.x}, y{Other.y}
-    {}
+    : x{Other.x}
+    , y{Other.y}
+    {
+    }
 
     vec2_fixed(const type& in_x, const type& in_y)
-        : x{in_x}, y{in_y}
-    {}
+    : x{in_x}
+    , y{in_y}
+    {
+    }
 
     vec2_fixed(float in_x, float in_y)
-        : x{in_x}, y{in_y}
-    {}
+    : x{in_x}
+    , y{in_y}
+    {
+    }
 
     /*
      * Vector operations.
@@ -51,47 +57,47 @@ struct vec2_fixed
     {
         return x * Other.x + y * Other.y;
     }
-    
+
     const type length_squared() const
     {
         return dot_product(*this);
     }
-        
+
     const auto area(vec2_fixed<F> Other) const -> decltype(x * Other.y - y * Other.x)
     {
         return x * Other.y - y * Other.x;
     }
-    
+
     int area_sign(vec2_fixed<F> Other) const
     {
         return boost::math::sign(area(Other));
     }
-    
+
     /*
      * operators. 
      */
 
     const vec2_fixed<F> operator+(const vec2_fixed<F>& Other) const
-	{
+    {
         return {x + Other.x, y + Other.y};
-	}
+    }
     const vec2_fixed<F> operator-(const vec2_fixed<F>& Other) const
-	{
+    {
         return {x - Other.x, y - Other.y};
-	}
+    }
     const vec2_fixed<F> operator-() const
-	{
-        return {-x,-y};
-	}
+    {
+        return {-x, -y};
+    }
     const vec2_fixed<F> operator*(float s) const
-	{
+    {
         return {x * s, y * s};
-	}
+    }
     const vec2_fixed<F> operator/(float s) const
     {
         return {x / s, y / s};
     }
-    
+
     /*
      * assignments.
      */
@@ -112,32 +118,32 @@ struct vec2_fixed
         *this = *this - Other;
         return *this;
     }
- 
+
     /* 
      * exact comparisons.
      */
 
     bool operator==(vec2_fixed<F> Other) const
     {
-        return x==Other.x && y==Other.y;
+        return x == Other.x && y == Other.y;
     }
     bool operator!=(vec2_fixed<F> Other) const
     {
-        return x!=Other.x || y!=Other.y;
+        return x != Other.x || y != Other.y;
     }
 
     /* 
      * element access. 
      */
-    
+
     type& operator[](int c)
     {
-        assert(c>=0 && c<2);
+        assert(c >= 0 && c < 2);
         return (&x)[c];
     }
     const type operator[](int c) const
     {
-        assert(c>=0 && c<2);
+        assert(c >= 0 && c < 2);
         return (&x)[c];
     }
 };

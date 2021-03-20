@@ -16,21 +16,25 @@ struct plane : public vec4
 {
     plane()
     : vec4(0, 0, 0, 1) /* invalid plane. */
-	{}
+    {
+    }
 
     plane(vec3 n, float d)
     : vec4(n, d)
-	{}
+    {
+    }
 
     plane(float a, float b, float c, float d)
     : vec4(a, b, c, d)
-	{}
+    {
+    }
 
-	plane(const plane& o)
-		: vec4(o)
-	{}
+    plane(const plane& o)
+    : vec4(o)
+    {
+    }
 
-    float distance( vec3 p ) const
+    float distance(vec3 p) const
     {
         const auto proj = xyz();
         return (proj.dot_product(p) + w) / proj.length();
@@ -45,11 +49,13 @@ struct line
 
     line() = default;
 
-    line( const T& in_pos, const T& in_dir )
-    : pos(in_pos), dir(in_dir)
-    {}
+    line(const T& in_pos, const T& in_dir)
+    : pos(in_pos)
+    , dir(in_dir)
+    {
+    }
 
-    const T evaluate_at( float param ) const
+    const T evaluate_at(float param) const
     {
         return pos + dir * param;
     }
@@ -57,9 +63,9 @@ struct line
 
 /** create a line from two points. */
 template<typename T>
-const line<T> create_line( const T& p1, const T& p2 )
+const line<T> create_line(const T& p1, const T& p2)
 {
-    return { p1, p2-p1 };
+    return {p1, p2 - p1};
 }
 
 /** 3d line. */

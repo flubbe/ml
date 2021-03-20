@@ -9,15 +9,14 @@
  */
 
 #if defined(ML_USE_SIMD)
-#   include "simd/mat4x4.h"
+#    include "simd/mat4x4.h"
 namespace ml
 {
-    using mat4x4 = simd::mat4x4;
+using mat4x4 = simd::mat4x4;
 }; /* namespace ml */
 #elif defined(ML_INCLUDE_SIMD)
-#   include "x86/mat4x4.h"
-#   include "simd/mat4x4.h"
+#    include "x86/mat4x4.h"
+#    include "simd/mat4x4.h"
 #else
-#   include "x86/mat4x4.h"
+#    include "x86/mat4x4.h"
 #endif
-

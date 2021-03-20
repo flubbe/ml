@@ -25,36 +25,36 @@
 
 #ifdef ML_NO_DEPS
 
-#define ML_NO_CPP
-#define ML_NO_BOOST
-#define ML_NO_CNL
+#    define ML_NO_CPP
+#    define ML_NO_BOOST
+#    define ML_NO_CNL
 
 #endif /* ML_NO_DEPS */
 
 #ifndef ML_NO_CPP
 
 /* C++ headers */
-#include <algorithm>
-#include <cmath>
+#    include <algorithm>
+#    include <cmath>
 
 #endif /* ML_NO_CPP */
 
 #ifndef ML_NO_BOOST
 
 /* boost */
-#include <boost/math/special_functions/sign.hpp>
-#include <boost/algorithm/clamp.hpp>
+#    include <boost/math/special_functions/sign.hpp>
+#    include <boost/algorithm/clamp.hpp>
 
 #endif /* ML_NO_BOOST */
 
 #ifndef ML_NO_CNL
 
 /* CNL for most fixed-point types. */
-#include "cnl/static_number.h"
-#include "cnl/num_traits.h"
+#    include "cnl/static_number.h"
+#    include "cnl/num_traits.h"
 
 /* CNL support functions. */
-#include "cnl_support.h"
+#    include "cnl_support.h"
 
 #endif /* ML_NO_CNL */
 
@@ -63,7 +63,7 @@
 
 /* enable SIMD (if not requested to disable or just include it) */
 #if !defined(ML_NO_SIMD) && !defined(ML_INCLUDE_SIMD)
-#   define ML_USE_SIMD
+#    define ML_USE_SIMD
 #endif /* IML_INCLUDE_SIMD */
 
 /*
@@ -71,18 +71,18 @@
  */
 #if defined(ML_USE_SIMD) || defined(ML_INCLUDE_SIMD)
 
-#define ML_USE_SSE41
-#define ML_USE_SSE3
+#    define ML_USE_SSE41
+#    define ML_USE_SSE3
 
 /* SSE intrinsics */
-#include <mmintrin.h>  /* MMX */
-#include <xmmintrin.h> /* SSE */
-#include <emmintrin.h> /* SSE2 */
-#include <pmmintrin.h> /* SSE3 */
+#    include <mmintrin.h>  /* MMX */
+#    include <xmmintrin.h> /* SSE */
+#    include <emmintrin.h> /* SSE2 */
+#    include <pmmintrin.h> /* SSE3 */
 /*
 #include <tmmintrin.h> SSSE3
 */
-#include <smmintrin.h> /* SSE4.1 */
+#    include <smmintrin.h> /* SSE4.1 */
 /*
 #include <nmmintrin.h> SSE4.2
 #include <ammintrin.h> SSE4A
@@ -104,11 +104,11 @@
 
 /* mathematical functions that do not depend on the types included below. */
 #include "functions.h"
-  
+
 /* vectors and matrices */
 #include "vec2.h"
 #ifndef ML_NO_CNL
-#include "vec2_fix.h"
+#    include "vec2_fix.h"
 #endif /* ML_NO_CNL */
 #include "vec3.h"
 #include "vec4.h"

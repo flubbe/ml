@@ -21,7 +21,7 @@ struct closed_unit_interval
 {
     /** Representation for one. */
     static const T one{std::numeric_limits<T>::max()};
-    static const T half{std::numeric_limits<T>::max()/2};
+    static const T half{std::numeric_limits<T>::max() / 2};
 
     /** Fixed-point representation of data. */
     T data{0};
@@ -34,13 +34,13 @@ struct closed_unit_interval
     {
         // clamp incoming value.
 #ifdef ML_NO_BOOST
-        in = std::min( 1.f, std::max( 0.f, in ) );
+        in = std::min(1.f, std::max(0.f, in));
 #else
-        in = boost::algorithm::clamp( in, 0.0f, 1.0f );
+        in = boost::algorithm::clamp(in, 0.0f, 1.0f);
 #endif
 
         // circumvent precision issue when near one.
-        if( in < 0.5 )
+        if(in < 0.5)
         {
             // convert to fixed-point.
             data = static_cast<T>(in * one);
@@ -52,13 +52,15 @@ struct closed_unit_interval
         }
     }
 
-    struct no_clamp {};
-    
+    struct no_clamp
+    {
+    };
+
     /** Non-clamping constructor. Assumes incoming numbers to be in the range [0,1]. */
     closed_unit_interval(float in, const no_clamp&)
     {
         // circumvent precision issue when near one.
-        if( in <= 0.5 )
+        if(in <= 0.5)
         {
             // convert to fixed-point.
             data = static_cast<T>(in * one);
@@ -70,12 +72,15 @@ struct closed_unit_interval
         }
     }
 
-    struct no_scale {};
+    struct no_scale
+    {
+    };
 
     /** Construct from base representation. */
     closed_unit_interval(T n, const no_scale&)
-        : data(n)
-    {}
+    : data(n)
+    {
+    }
 
     /*
      * Comparison operators.
@@ -150,15 +155,15 @@ struct closed_unit_interval
 };
 
 template<typename T>
-T unwrap( const closed_unit_interval<T>& i )
+T unwrap(const closed_unit_interval<T>& i)
 {
     return i.data;
 }
 
 template<typename T>
-closed_unit_interval<T> wrap( const T& data )
+closed_unit_interval<T> wrap(const T& data)
 {
-    return closed_unit_interval<T>( data, typename closed_unit_interval<T>::no_scale() );
+    return closed_unit_interval<T>(data, typename closed_unit_interval<T>::no_scale());
 }
 
 /** 

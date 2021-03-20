@@ -14,13 +14,13 @@ namespace ml
 #ifndef ML_NO_CNL
 
 /** signed 32 bit signed fixed-point type with 16 fractional bits. */
-typedef cnl::static_number<31,-16> fixed_t;
+typedef cnl::static_number<31, -16> fixed_t;
 
 /** signed 32 bit signed fixed-point type with 4 fractional bits. */
-typedef cnl::static_number<31,-4> fixed_28_4_t;
+typedef cnl::static_number<31, -4> fixed_28_4_t;
 
 /** signed 32 bit signed fixed-point type with 8 fractional bits. */
-typedef cnl::static_number<31,-8> fixed_24_8_t;
+typedef cnl::static_number<31, -8> fixed_24_8_t;
 
 #endif /* ML_NO_CNL */
 
