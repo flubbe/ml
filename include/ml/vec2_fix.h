@@ -12,7 +12,7 @@ namespace ml
 {
 
 /** 2-dimensional fixed-point vector */
-template<size_t F>
+template<int F>
 struct vec2_fixed
 {
     using type = cnl::scaled_integer<int32_t, cnl::power<-F>>;
@@ -53,7 +53,7 @@ struct vec2_fixed
      * Vector operations.
      */
 
-    const auto dot_product(vec2_fixed<F> Other) const -> decltype(x * Other.x + y * Other.y)
+    auto dot_product(vec2_fixed<F> Other) const -> const decltype(x * Other.x + y * Other.y)
     {
         return x * Other.x + y * Other.y;
     }
@@ -63,7 +63,7 @@ struct vec2_fixed
         return dot_product(*this);
     }
 
-    const auto area(vec2_fixed<F> Other) const -> decltype(x * Other.y - y * Other.x)
+    auto area(vec2_fixed<F> Other) const -> const decltype(x * Other.y - y * Other.x)
     {
         return x * Other.y - y * Other.x;
     }
