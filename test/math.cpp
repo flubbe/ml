@@ -155,6 +155,18 @@ BOOST_AUTO_TEST_CASE(vec4_simd_dot)
     BOOST_TEST(ml::dot(ml::simd::vec4(1, 2, 3, 4), ml::simd::vec4(-2, 1, -4, 3)) == 0);
 }
 
+BOOST_AUTO_TEST_CASE(vec4_is_zero)
+{
+    BOOST_TEST(!ml::vec4(0,0,0,1).is_zero());
+    BOOST_TEST(ml::vec4(0,0,0,0).is_zero());
+}
+
+BOOST_AUTO_TEST_CASE(vec4_simd_is_zero)
+{
+    BOOST_TEST(!ml::simd::vec4(0,0,0,1).is_zero());
+    BOOST_TEST(ml::simd::vec4(0,0,0,0).is_zero());
+}
+
 /*
  * mat4x4 tests.
  */

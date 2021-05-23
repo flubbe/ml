@@ -77,7 +77,7 @@ struct vec4
 
     bool is_zero() const
     {
-        return _mm_movemask_ps(_mm_cmpeq_ps(xyzw, _mm_set_ps1(0.0f))) != 0;
+        return _mm_movemask_ps(_mm_cmpeq_ps(xyzw, _mm_set_ps1(0.0f))) == 0xF;
     }
 
     float length_squared() const
@@ -133,14 +133,14 @@ struct vec4
 #endif
     }
 
-    const vec4 scale(const float& S) const
+    const vec4 scale(const float S) const
     {
         return {_mm_mul_ps(xyzw, _mm_set1_ps(S))};
     }
 
     void normalize()
     {
-        /* OneOverLength is safe to call on zero vectors - no check needed. */
+        /* one_over_length is safe to call on zero vectors - no check needed. */
         *this = scale(one_over_length());
     }
     const vec4 normalized() const

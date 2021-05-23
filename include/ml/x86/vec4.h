@@ -113,7 +113,7 @@ struct vec4
         return x * Other.x + y * Other.y + z * Other.z + w * Other.w;
     }
 
-    const vec4 scale(const float& S) const
+    const vec4 scale(const float S) const
     {
         return {x * S, y * S, z * S, w * S};
     }
