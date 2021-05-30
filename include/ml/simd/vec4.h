@@ -153,9 +153,17 @@ struct vec4
     {
         return {_mm_add_ps(xyzw, Other.xyzw)};
     }
+    const vec4 operator+(float f) const
+    {
+        return {_mm_add_ps(xyzw, _mm_set1_ps(f))};
+    }
     const vec4 operator-(const vec4 Other) const
     {
         return {_mm_sub_ps(xyzw, Other.xyzw)};
+    }
+    const vec4 operator-(float f) const
+    {
+        return {_mm_sub_ps(xyzw, _mm_set1_ps(f))};
     }
     const vec4 operator-() const
     {

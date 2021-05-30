@@ -98,9 +98,17 @@ struct vec3
     {
         return {x + Other.x, y + Other.y, z + Other.z};
     }
+    const vec3 operator+(float f) const
+    {
+        return {x + f, y + f, z + f};
+    }
     const vec3 operator-(vec3 Other) const
     {
         return {x - Other.x, y - Other.y, z - Other.z};
+    }
+    const vec3 operator-(float f) const
+    {
+        return {x - f, y - f, z - f};
     }
     const vec3 operator-() const
     {

@@ -133,9 +133,17 @@ struct vec4
     {
         return {x + Other.x, y + Other.y, z + Other.z, w + Other.w};
     }
+    const vec4 operator+(float f) const
+    {
+        return {x + f, y + f, z + f, w + f};
+    }
     const vec4 operator-(const vec4& Other) const
     {
         return {x - Other.x, y - Other.y, z - Other.z, w - Other.w};
+    }
+    const vec4 operator-(float f) const
+    {
+        return {x - f, y - f, z - f, w - f};
     }
     const vec4 operator-() const
     {

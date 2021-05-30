@@ -84,9 +84,17 @@ struct vec2
     {
         return {x + other.x, y + other.y};
     }
+    const vec2 operator+(float f) const
+    {
+        return {x + f, y + f};
+    }
     const vec2 operator-(vec2 other) const
     {
         return {x - other.x, y - other.y};
+    }
+    const vec2 operator-(float f) const
+    {
+        return {x - f, y - f};
     }
     const vec2 operator-() const
     {
