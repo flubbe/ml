@@ -65,6 +65,11 @@ struct vec4
         xyzw = _mm_set_ps(in_w, in_z, in_y, in_x);
     }
 
+    vec4(float v[4])
+    {
+        xyzw = _mm_set_ps(v[3], v[2], v[1], v[0]);
+    }
+
     /** divide xyz by w and store 1/w in w */
     void divide_by_w()
     {
@@ -256,11 +261,16 @@ struct vec4
         return {s, t};
     }
 
-    /* special vectors. */
+    /*  special vectors. */
     static const vec4 zero()
     {
         // note that by default w is initialized to 1, so we initialize the vector explicitely.
         return {_mm_set_ps1(0.0)};
+    }
+
+    static const vec4 one()
+    {
+        return {_mm_set_ps1(1.0)};
     }
 };
 

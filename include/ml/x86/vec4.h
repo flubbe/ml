@@ -66,6 +66,14 @@ struct vec4
     {
     }
 
+    vec4(float v[4])
+    {
+        x = v[0];
+        y = v[1];
+        z = v[2];
+        w = v[3];
+    }
+
     float divide_by_w()
     {
         assert(w != 0.f);
@@ -241,6 +249,11 @@ struct vec4
     {
         // note that by default W is initialized to 1, so we initialize the vector explicitely.
         return {0, 0, 0, 0};
+    }
+
+    static const vec4 one()
+    {
+        return {1, 1, 1, 1};
     }
 };
 
