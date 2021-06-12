@@ -131,6 +131,17 @@ struct vec3
         return cross_product(Other);
     }
 
+    vec3& operator+=(const vec3 other)
+    {
+        *this = *this + other;
+        return *this;
+    }
+    vec3& operator-=(const vec3 other)
+    {
+        *this = *this - other;
+        return *this;
+    }
+
     /* exact comparisons */
     bool operator==(vec3 Other) const
     {
