@@ -135,6 +135,7 @@ struct mat4x4
           {0.0f, 0.0f, 0.0f, 1.0f},
         };
     }
+
     static mat4x4 zero()
     {
         return mat4x4{vec4::zero(), vec4::zero(), vec4::zero(), vec4::zero()};

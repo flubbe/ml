@@ -15,6 +15,7 @@
  * 
  *   ML_NO_SIMD:      don't use SSE versions of vec4 and mat4x4
  *   ML_INCLUDE_SIMD: provide SSE and non-SSE versions of vec4 and mat4x4
+ *   ML_NO_SWIZZLE:   don't define swizzle functions for vector component access.
  * 
  * \author Felix Lubbe
  * \copyright Copyright (c) 2021
@@ -66,6 +67,11 @@
 #    define ML_USE_SIMD
 #endif /* IML_INCLUDE_SIMD */
 
+/* check if we should include vector swizzle functions. */
+#if !defined(ML_NO_SWIZZLE)
+#    define ML_DEFINE_SWIZZLE_FUNCTIONS
+#endif
+
 /*
  * SIMD.
  */
@@ -105,6 +111,11 @@
 /* mathematical functions that do not depend on the types included below. */
 #include "functions.h"
 
+/* include forward declarations when using swizzle functions. */
+#if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
+#    include "forward_decl.h"
+#endif /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
+
 /* vectors and matrices */
 #include "vec2.h"
 #ifndef ML_NO_CNL
@@ -113,6 +124,30 @@
 #include "vec3.h"
 #include "vec4.h"
 #include "mat4x4.h"
+
+/* vector swizzle notation implementation */
+#if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
+#    define ML_IMPLEMENT_SWIZZLE_FUNCTIONS
+/* vec2 */
+#    define ML_SWIZZLE_COMPONENTS 2
+#    define ML_SWIZZLE_TYPE       ml::vec2
+#    include "swizzle.inl"
+#    undef ML_SWIZZLE_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+/* vec3 */
+#    define ML_SWIZZLE_COMPONENTS 3
+#    define ML_SWIZZLE_TYPE       ml::vec3
+#    include "swizzle.inl"
+#    undef ML_SWIZZLE_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+/* vec4 */
+#    define ML_SWIZZLE_COMPONENTS 4
+#    define ML_SWIZZLE_TYPE       ml::vec4
+#    include "swizzle.inl"
+#    undef ML_SWIZZLE_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+#    undef ML_IMPLEMENT_SWIZZLE_FUNCTIONS
+#endif
 
 /* templated 2d vector class for easy handling of 2d composite types. */
 #include "tvec2.h"

@@ -19,7 +19,7 @@ struct vec4
 {
     union
     {
-        __m128 xyzw;
+        __m128 data;
         struct
         {
             float x{0}, y{0}, z{0}, w{1};
@@ -38,36 +38,36 @@ struct vec4
     {
     }
 
-    vec4(const __m128 in_xyzw)
-    : xyzw(in_xyzw)
+    vec4(const __m128 in_data)
+    : data(in_data)
     {
     }
 
     vec4(const vec3 v)
     {
         //!!fixme: is there a way to just copy v?
-        xyzw = _mm_set_ps(1, v.z, v.y, v.x);
+        data = _mm_set_ps(1, v.z, v.y, v.x);
     }
 
     vec4(const vec3 v, float in_w)
     {
         //!!fixme: is there a way to just copy v?
-        xyzw = _mm_set_ps(in_w, v.z, v.y, v.x);
+        data = _mm_set_ps(in_w, v.z, v.y, v.x);
     }
 
     vec4(float in_x, float in_y, float in_z)
     {
-        xyzw = _mm_set_ps(1, in_z, in_y, in_x);
+        data = _mm_set_ps(1, in_z, in_y, in_x);
     }
 
     vec4(float in_x, float in_y, float in_z, float in_w)
     {
-        xyzw = _mm_set_ps(in_w, in_z, in_y, in_x);
+        data = _mm_set_ps(in_w, in_z, in_y, in_x);
     }
 
     vec4(float v[4])
     {
-        xyzw = _mm_set_ps(v[3], v[2], v[1], v[0]);
+        data = _mm_set_ps(v[3], v[2], v[1], v[0]);
     }
 
     /** divide xyz by w and store 1/w in w */
@@ -76,13 +76,13 @@ struct vec4
         assert(w != 0.f);
 
         const auto one_over_w = 1.0f / w;
-        xyzw = _mm_mul_ps(xyzw, _mm_set_ps1(one_over_w));
+        data = _mm_mul_ps(data, _mm_set_ps1(one_over_w));
         w = one_over_w;
     }
 
     bool is_zero() const
     {
-        return _mm_movemask_ps(_mm_cmpeq_ps(xyzw, _mm_set_ps1(0.0f))) == 0xF;
+        return _mm_movemask_ps(_mm_cmpeq_ps(data, _mm_set_ps1(0.0f))) == 0xF;
     }
 
     float length_squared() const
@@ -114,10 +114,10 @@ struct vec4
         // see answer here: https://stackoverflow.com/questions/6996764/fastest-way-to-do-horizontal-sse-vector-sum-or-other-reduction
 
 #if defined(ML_USE_SSE41)
-        return _mm_cvtss_f32(_mm_dp_ps(xyzw, Other.xyzw, 0xff));
+        return _mm_cvtss_f32(_mm_dp_ps(data, Other.data, 0xff));
 #elif defined(ML_USE_SSE3)
         // multiply entries
-        __m128 r1 = _mm_mul_ps(xyzw, Other.xyzw);
+        __m128 r1 = _mm_mul_ps(data, Other.data);
 
         __m128 shuf = _mm_movehdup_ps(r1);    // broadcast elements 3,1 to 2,0
         __m128 sums = _mm_add_ps(r1, shuf);
@@ -126,7 +126,7 @@ struct vec4
         return _mm_cvtss_f32(sums);
 #else /* otherwise use SSE1 */
         // multiply entries
-        __m128 r1 = _mm_mul_ps(xyzw, Other.xyzw);
+        __m128 r1 = _mm_mul_ps(data, Other.data);
 
         // horizontal sum.
         __m128 shuf = _mm_shuffle_ps(r1, r1, _MM_SHUFFLE(2, 3, 0, 1));
@@ -140,7 +140,7 @@ struct vec4
 
     const vec4 scale(const float S) const
     {
-        return {_mm_mul_ps(xyzw, _mm_set1_ps(S))};
+        return {_mm_mul_ps(data, _mm_set1_ps(S))};
     }
 
     void normalize()
@@ -156,27 +156,27 @@ struct vec4
     /* operations. */
     const vec4 operator+(const vec4 Other) const
     {
-        return {_mm_add_ps(xyzw, Other.xyzw)};
+        return {_mm_add_ps(data, Other.data)};
     }
     const vec4 operator+(float f) const
     {
-        return {_mm_add_ps(xyzw, _mm_set1_ps(f))};
+        return {_mm_add_ps(data, _mm_set1_ps(f))};
     }
     const vec4 operator-(const vec4 Other) const
     {
-        return {_mm_sub_ps(xyzw, Other.xyzw)};
+        return {_mm_sub_ps(data, Other.data)};
     }
     const vec4 operator-(float f) const
     {
-        return {_mm_sub_ps(xyzw, _mm_set1_ps(f))};
+        return {_mm_sub_ps(data, _mm_set1_ps(f))};
     }
     const vec4 operator-() const
     {
-        return {_mm_sub_ps(_mm_set1_ps(0.0f), xyzw)};
+        return {_mm_sub_ps(_mm_set1_ps(0.0f), data)};
     }
     const vec4 operator*(const vec4 Other) const
     {
-        return {_mm_mul_ps(xyzw, Other.xyzw)};
+        return {_mm_mul_ps(data, Other.data)};
     }
     const vec4 operator*(float S) const
     {
@@ -188,7 +188,7 @@ struct vec4
     }
     const vec4 operator/(const vec4 other) const
     {
-        return {_mm_div_ps(xyzw, other.xyzw)};
+        return {_mm_div_ps(data, other.data)};
     }
 
     vec4& operator+=(const vec4 Other)
@@ -222,11 +222,11 @@ struct vec4
     /* exact comparisons */
     bool operator==(const vec4 Other) const
     {
-        return _mm_movemask_ps(_mm_cmpeq_ps(xyzw, Other.xyzw)) == 0xF;
+        return _mm_movemask_ps(_mm_cmpeq_ps(data, Other.data)) == 0xF;
     }
     bool operator!=(const vec4 Other) const
     {
-        return _mm_movemask_ps(_mm_cmpneq_ps(xyzw, Other.xyzw)) != 0;
+        return _mm_movemask_ps(_mm_cmpneq_ps(data, Other.data)) != 0;
     }
 
     /* access. */
@@ -241,25 +241,23 @@ struct vec4
         return (&x)[c];
     }
 
-    /* projection onto first components */
-    const vec3 xyz() const
-    {
-        return {x, y, z};
-    }
+#if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
+#    define ML_SWIZZLE_COMPONENTS 4
+#    define ML_SWIZZLE_VEC4_TYPE  vec4
+#    include "../swizzle.inl"
+#    undef ML_SWIZZLE_VEC4_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+#else /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
     const vec2 xy() const
     {
         return {x, y};
     }
 
-    const vec3 rgb() const
+    const vec3 xyz() const
     {
-        return {r, g, b};
+        return {x, y, z};
     }
-
-    const vec2 st() const
-    {
-        return {s, t};
-    }
+#endif
 
     /*  special vectors. */
     static const vec4 zero()

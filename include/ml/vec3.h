@@ -164,17 +164,30 @@ struct vec3
         return (&x)[c];
     }
 
+#if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
+#    define ML_SWIZZLE_COMPONENTS 3
+#    define ML_SWIZZLE_VEC4_TYPE  vec4
+#    include "swizzle.inl"
+#    undef ML_SWIZZLE_VEC4_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+#else  /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
     /* projection onto first components */
     const vec2 xy() const
     {
         return {x, y};
     }
+#endif /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
 
     /* special vectors. */
     static const vec3 zero()
     {
-        // TVector is initialized to zero by default.
+        // vec3 is initialized to zero by default.
         return {};
+    }
+
+    static const vec3 one()
+    {
+        return {1, 1, 1};
     }
 };
 

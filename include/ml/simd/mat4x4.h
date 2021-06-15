@@ -60,67 +60,67 @@ struct mat4x4
         mat4x4 res;
 
         // Use vW to hold the original row
-        __m128 vW = rows[0].xyzw;
+        __m128 vW = rows[0].data;
         __m128 vX = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(0, 0, 0, 0));
         __m128 vY = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(1, 1, 1, 1));
         __m128 vZ = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(2, 2, 2, 2));
         vW = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(3, 3, 3, 3));
 
         // Perform the operation on the first row
-        vX = _mm_mul_ps(vX, m.rows[0].xyzw);
-        vY = _mm_mul_ps(vY, m.rows[1].xyzw);
-        vZ = _mm_mul_ps(vZ, m.rows[2].xyzw);
-        vW = _mm_mul_ps(vW, m.rows[3].xyzw);
+        vX = _mm_mul_ps(vX, m.rows[0].data);
+        vY = _mm_mul_ps(vY, m.rows[1].data);
+        vZ = _mm_mul_ps(vZ, m.rows[2].data);
+        vW = _mm_mul_ps(vW, m.rows[3].data);
         // Perform a binary add to reduce cumulative errors
         vX = _mm_add_ps(vX, vZ);
         vY = _mm_add_ps(vY, vW);
         vX = _mm_add_ps(vX, vY);
-        res.rows[0].xyzw = vX;
+        res.rows[0].data = vX;
 
-        vW = rows[1].xyzw;
+        vW = rows[1].data;
         vX = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(0, 0, 0, 0));
         vY = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(1, 1, 1, 1));
         vZ = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(2, 2, 2, 2));
         vW = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(3, 3, 3, 3));
 
-        vX = _mm_mul_ps(vX, m.rows[0].xyzw);
-        vY = _mm_mul_ps(vY, m.rows[1].xyzw);
-        vZ = _mm_mul_ps(vZ, m.rows[2].xyzw);
-        vW = _mm_mul_ps(vW, m.rows[3].xyzw);
+        vX = _mm_mul_ps(vX, m.rows[0].data);
+        vY = _mm_mul_ps(vY, m.rows[1].data);
+        vZ = _mm_mul_ps(vZ, m.rows[2].data);
+        vW = _mm_mul_ps(vW, m.rows[3].data);
         vX = _mm_add_ps(vX, vZ);
         vY = _mm_add_ps(vY, vW);
         vX = _mm_add_ps(vX, vY);
-        res.rows[1].xyzw = vX;
+        res.rows[1].data = vX;
 
-        vW = rows[2].xyzw;
+        vW = rows[2].data;
         vX = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(0, 0, 0, 0));
         vY = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(1, 1, 1, 1));
         vZ = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(2, 2, 2, 2));
         vW = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(3, 3, 3, 3));
 
-        vX = _mm_mul_ps(vX, m.rows[0].xyzw);
-        vY = _mm_mul_ps(vY, m.rows[1].xyzw);
-        vZ = _mm_mul_ps(vZ, m.rows[2].xyzw);
-        vW = _mm_mul_ps(vW, m.rows[3].xyzw);
+        vX = _mm_mul_ps(vX, m.rows[0].data);
+        vY = _mm_mul_ps(vY, m.rows[1].data);
+        vZ = _mm_mul_ps(vZ, m.rows[2].data);
+        vW = _mm_mul_ps(vW, m.rows[3].data);
         vX = _mm_add_ps(vX, vZ);
         vY = _mm_add_ps(vY, vW);
         vX = _mm_add_ps(vX, vY);
-        res.rows[2].xyzw = vX;
+        res.rows[2].data = vX;
 
-        vW = rows[3].xyzw;
+        vW = rows[3].data;
         vX = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(0, 0, 0, 0));
         vY = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(1, 1, 1, 1));
         vZ = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(2, 2, 2, 2));
         vW = _mm_shuffle_ps(vW, vW, _MM_SHUFFLE(3, 3, 3, 3));
 
-        vX = _mm_mul_ps(vX, m.rows[0].xyzw);
-        vY = _mm_mul_ps(vY, m.rows[1].xyzw);
-        vZ = _mm_mul_ps(vZ, m.rows[2].xyzw);
-        vW = _mm_mul_ps(vW, m.rows[3].xyzw);
+        vX = _mm_mul_ps(vX, m.rows[0].data);
+        vY = _mm_mul_ps(vY, m.rows[1].data);
+        vZ = _mm_mul_ps(vZ, m.rows[2].data);
+        vW = _mm_mul_ps(vW, m.rows[3].data);
         vX = _mm_add_ps(vX, vZ);
         vY = _mm_add_ps(vY, vW);
         vX = _mm_add_ps(vX, vY);
-        res.rows[3].xyzw = vX;
+        res.rows[3].data = vX;
 
         return res;
     }
@@ -159,7 +159,7 @@ struct mat4x4
 
     void transpose()
     {
-        _MM_TRANSPOSE4_PS(rows[0].xyzw, rows[1].xyzw, rows[2].xyzw, rows[3].xyzw);
+        _MM_TRANSPOSE4_PS(rows[0].data, rows[1].data, rows[2].data, rows[3].data);
     }
 
     const mat4x4 transposed() const

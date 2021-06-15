@@ -158,6 +158,14 @@ struct vec2
         assert(i >= 0 && i < 2);
         return (&x)[i];
     }
+
+#if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
+#    define ML_SWIZZLE_COMPONENTS 2
+#    define ML_SWIZZLE_VEC4_TYPE  vec4
+#    include "swizzle.inl"
+#    undef ML_SWIZZLE_VEC4_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+#endif /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
 };
 
 } /* namespace ml */

@@ -224,30 +224,28 @@ struct vec4
         return (&x)[c];
     }
 
-    /* projection onto first components */
-    const vec3 xyz() const
-    {
-        return {x, y, z};
-    }
+#if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
+#    define ML_SWIZZLE_COMPONENTS 4
+#    define ML_SWIZZLE_VEC4_TYPE  vec4
+#    include "../swizzle.inl"
+#    undef ML_SWIZZLE_VEC4_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+#else /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
     const vec2 xy() const
     {
         return {x, y};
     }
 
-    const vec3 rgb() const
+    const vec3 xyz() const
     {
-        return {r, g, b};
+        return {x, y, z};
     }
-
-    const vec2 st() const
-    {
-        return {s, t};
-    }
+#endif
 
     /* special vectors. */
     static const vec4 zero()
     {
-        // note that by default W is initialized to 1, so we initialize the vector explicitely.
+        // note that by default w is initialized to 1, so we initialize the vector explicitely.
         return {0, 0, 0, 0};
     }
 

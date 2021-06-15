@@ -1,7 +1,6 @@
 
 # Simple header-only mathematics library
 
-[![License](https://img.shields.io/github/license/flubbe/ml)](https://github.com/flubbe/ml/blob/main/LICENSE.txt)
 [![Build Status](https://travis-ci.com/flubbe/ml.svg?branch=main)](https://travis-ci.com/flubbe/ml)
 
 ## Description
@@ -30,6 +29,9 @@ The tests rely on the [Boost.Test](https://www.boost.org) framework.
 As a header-only library, just include `all.h` (note that CNL 1.1.2 needs a C++17 compatible tool chain, and the master branch needs a C++20 compatible tool chain).
 
 By default, SSE versions of the functions and classes are used. Set `ML_NO_SIMD` to use non-SSE versions. Set `ML_INCLUDE_SIMD` to include both SSE and non-SSE versions of `vec4` and `mat4x4` (the SSE versions are found in the namespace `simd`). Currently the library uses up to SSE 4.1.
+
+The library defines functions to access vector components similar to swizzle notation. This may increase build times and binary sizes and can be disabled by
+defining `ML_NO_SWIZZLE` before including `all.h`.
 
 To build the tests, first run `./scripts/pre-build.sh` from the root folder, which creates the build directory structure and downloads [CNL](https://github.com/johnmcfarlane/cnl), release 1.1.2. Then run `./scripts/build.sh` from the root folder. The tests are written into the `bin`-directory.
 
