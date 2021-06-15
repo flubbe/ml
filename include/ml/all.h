@@ -127,27 +127,8 @@
 
 /* vector swizzle notation implementation */
 #if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
-#    define ML_IMPLEMENT_SWIZZLE_FUNCTIONS
-/* vec2 */
-#    define ML_SWIZZLE_COMPONENTS 2
-#    define ML_SWIZZLE_TYPE       ml::vec2
-#    include "swizzle.inl"
-#    undef ML_SWIZZLE_TYPE
-#    undef ML_SWIZZLE_COMPONENTS
-/* vec3 */
-#    define ML_SWIZZLE_COMPONENTS 3
-#    define ML_SWIZZLE_TYPE       ml::vec3
-#    include "swizzle.inl"
-#    undef ML_SWIZZLE_TYPE
-#    undef ML_SWIZZLE_COMPONENTS
-/* vec4 */
-#    define ML_SWIZZLE_COMPONENTS 4
-#    define ML_SWIZZLE_TYPE       ml::vec4
-#    include "swizzle.inl"
-#    undef ML_SWIZZLE_TYPE
-#    undef ML_SWIZZLE_COMPONENTS
-#    undef ML_IMPLEMENT_SWIZZLE_FUNCTIONS
-#endif
+#    include "swizzle_impl.h"
+#endif /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
 
 /* templated 2d vector class for easy handling of 2d composite types. */
 #include "tvec2.h"
