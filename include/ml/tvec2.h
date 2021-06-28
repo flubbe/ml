@@ -35,6 +35,8 @@ struct tvec2
     {
     }
 
+    tvec2(const tvec2&) = default;
+
     /* operators. */
     const tvec2 operator+(const tvec2& o) const
     {

@@ -19,6 +19,9 @@ namespace ml
 template<typename T>
 struct closed_unit_interval
 {
+    /* only supports POD types */
+    static_assert(std::is_pod<T>::value, "closed_unit_interval<T> only supports POD types");
+
     /** Representation for one. */
     static const T one{std::numeric_limits<T>::max()};
     static const T half{std::numeric_limits<T>::max() / 2};
@@ -28,6 +31,9 @@ struct closed_unit_interval
 
     /** Default constructor. */
     closed_unit_interval() = default;
+
+    /** default copy constructor. */
+    closed_unit_interval(const closed_unit_interval&) = default;
 
     /** Constructor. Clamps incoming numbers to the range [0,1]. */
     closed_unit_interval(float in)
@@ -40,14 +46,14 @@ struct closed_unit_interval
 #endif
 
         // circumvent precision issue when near one.
-        if(in < 0.5)
+        if(in < 0.5f)
         {
             // convert to fixed-point.
             data = static_cast<T>(in * one);
         }
         else
         {
-            in -= 0.5;
+            in -= 0.5f;
             data = static_cast<T>(in * one) + half;
         }
     }
@@ -60,14 +66,14 @@ struct closed_unit_interval
     closed_unit_interval(float in, const no_clamp&)
     {
         // circumvent precision issue when near one.
-        if(in <= 0.5)
+        if(in <= 0.5f)
         {
             // convert to fixed-point.
             data = static_cast<T>(in * one);
         }
         else
         {
-            in -= 0.5;
+            in -= 0.5f;
             data = static_cast<T>(in * one) + half;
         }
     }
