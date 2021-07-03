@@ -65,6 +65,11 @@ struct vec4
         data = _mm_set_ps(in_w, in_z, in_y, in_x);
     }
 
+    vec4(float v[4])
+    {
+        data = _mm_load_ps(v);
+    }
+
     /** divide xyz by w and store 1/w in w */
     void divide_by_w()
     {

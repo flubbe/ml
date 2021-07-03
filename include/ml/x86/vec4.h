@@ -74,7 +74,7 @@ struct vec4
         w = v[3];
     }
 
-    float divide_by_w()
+    void divide_by_w()
     {
         assert(w != 0.f);
 
@@ -82,9 +82,7 @@ struct vec4
         x *= one_over_w;
         y *= one_over_w;
         z *= one_over_w;
-        w = 1;
-
-        return one_over_w;
+        w = one_over_w;
     }
 
     bool is_zero() const

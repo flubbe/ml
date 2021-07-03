@@ -117,6 +117,13 @@ BOOST_AUTO_TEST_CASE(vec4_simd_initialization)
     BOOST_TEST((v1.x == 1 && v1.y == 2 && v1.z == 3 && v1.w == 4));
     BOOST_TEST((v2.x == 1 && v2.y == 2 && v2.z == 3 && v2.w == 1)); /* w-component defaults to one if not specified. */
     BOOST_TEST((v3.x == 1 && v3.y == 2 && v3.z == 3 && v3.w == 4));
+
+    float v[4] = {1, 2, 3, 4};
+    ml::simd::vec4 v4{v};
+    ml::vec4 v5{v};
+    
+    BOOST_TEST((v4.x == 1 && v4.y == 2 && v4.z == 3 && v4.w == 4));
+    BOOST_TEST((v5.x == 1 && v5.y == 2 && v5.z == 3 && v5.w == 4));
 }
 
 BOOST_AUTO_TEST_CASE(vec4_simd_comparisons)
