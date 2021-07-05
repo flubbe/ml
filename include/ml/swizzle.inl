@@ -18,7 +18,7 @@
 
 #if defined(ML_DEFINE_SWIZZLE_FUNCTIONS) && defined(ML_IMPLEMENT_SWIZZLE_FUNCTIONS)
 #    if !defined ML_SWIZZLE_TYPE
-#        error ML_SWIZZLE_TYPE undefiend.
+#        error ML_SWIZZLE_TYPE undefined.
 #    endif /* ML_SWIZZLE_TYPE */
 #endif
 
