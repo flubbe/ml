@@ -17,16 +17,15 @@
  * Helpers.
  */
 
-using namespace ml;
-
-void random_initialize_real_std_vector(std::size_t n, std::vector<vec4>& v)
+void random_initialize_real_std_vector(std::size_t n, std::vector<ml::vec4>& v)
 {
     std::random_device rnd_device;
     std::mt19937 mersenne_engine{rnd_device()};
     std::uniform_real_distribution<float> dist{-1, 1};
 
-    auto gen = [&dist, &mersenne_engine]() {
-        return vec4{dist(mersenne_engine), dist(mersenne_engine), dist(mersenne_engine), dist(mersenne_engine)};
+    auto gen = [&dist, &mersenne_engine]()
+    {
+        return ml::vec4{dist(mersenne_engine), dist(mersenne_engine), dist(mersenne_engine), dist(mersenne_engine)};
     };
 
     v.resize(n);
@@ -92,12 +91,12 @@ static_assert(!std::is_same<ml::vec4, ml::simd::vec4>::value);
 static_assert(!std::is_same<ml::mat4x4, ml::simd::mat4x4>::value);
 
 // paranoid checks.
-static_assert(sizeof(vec4) == 4 * sizeof(float));
-static_assert(sizeof(vec4) == sizeof(__m128));
+static_assert(sizeof(ml::vec4) == 4 * sizeof(float));
+static_assert(sizeof(ml::vec4) == sizeof(__m128));
 
 BOOST_AUTO_TEST_CASE(vec4_alignment)
 {
-    std::vector<vec4> v;
+    std::vector<ml::vec4> v;
     random_initialize_real_std_vector(10, v);
 
     // check vector alignment while being paranoid.
@@ -121,7 +120,7 @@ BOOST_AUTO_TEST_CASE(vec4_simd_initialization)
     float v[4] = {1, 2, 3, 4};
     ml::simd::vec4 v4{v};
     ml::vec4 v5{v};
-    
+
     BOOST_TEST((v4.x == 1 && v4.y == 2 && v4.z == 3 && v4.w == 4));
     BOOST_TEST((v5.x == 1 && v5.y == 2 && v5.z == 3 && v5.w == 4));
 }
@@ -164,14 +163,14 @@ BOOST_AUTO_TEST_CASE(vec4_simd_dot)
 
 BOOST_AUTO_TEST_CASE(vec4_is_zero)
 {
-    BOOST_TEST(!ml::vec4(0,0,0,1).is_zero());
-    BOOST_TEST(ml::vec4(0,0,0,0).is_zero());
+    BOOST_TEST(!ml::vec4(0, 0, 0, 1).is_zero());
+    BOOST_TEST(ml::vec4(0, 0, 0, 0).is_zero());
 }
 
 BOOST_AUTO_TEST_CASE(vec4_simd_is_zero)
 {
-    BOOST_TEST(!ml::simd::vec4(0,0,0,1).is_zero());
-    BOOST_TEST(ml::simd::vec4(0,0,0,0).is_zero());
+    BOOST_TEST(!ml::simd::vec4(0, 0, 0, 1).is_zero());
+    BOOST_TEST(ml::simd::vec4(0, 0, 0, 0).is_zero());
 }
 
 /*
@@ -297,6 +296,37 @@ BOOST_AUTO_TEST_CASE(lerp)
         BOOST_TEST(l.y == ml::lerp(t, a.y, b.y), boost::test_tools::tolerance(1e-5f));
         BOOST_TEST(l.z == ml::lerp(t, a.z, b.z), boost::test_tools::tolerance(1e-5f));
         BOOST_TEST(l.w == ml::lerp(t, a.w, b.w), boost::test_tools::tolerance(1e-5f));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(radians_degrees)
+{
+    /* these are just linear transformations.... */
+
+    BOOST_TEST(ml::to_radians(0) == 0);
+    BOOST_TEST(ml::to_radians(90) == static_cast<float>(M_PI_2), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_radians(180) == static_cast<float>(M_PI), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_radians(270) == static_cast<float>(3 * M_PI_2), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_radians(360) == static_cast<float>(2 * M_PI), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_radians(-90) == static_cast<float>(-M_PI_2), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_radians(-180) == static_cast<float>(-M_PI), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_radians(-270) == static_cast<float>(-3 * M_PI_2), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_radians(-360) == static_cast<float>(-2 * M_PI), boost::test_tools::tolerance(1e-9f));
+
+    BOOST_TEST(ml::to_degrees(0) == 0);
+    BOOST_TEST(ml::to_degrees(static_cast<float>(M_PI_2)) == static_cast<float>(90), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_degrees(static_cast<float>(M_PI)) == static_cast<float>(180), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_degrees(static_cast<float>(3 * M_PI_2)) == static_cast<float>(270), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_degrees(static_cast<float>(2 * M_PI)) == static_cast<float>(360), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_degrees(static_cast<float>(-M_PI_2)) == static_cast<float>(-90), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_degrees(static_cast<float>(-M_PI)) == static_cast<float>(-180), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_degrees(static_cast<float>(-3 * M_PI_2)) == static_cast<float>(-270), boost::test_tools::tolerance(1e-9f));
+    BOOST_TEST(ml::to_degrees(static_cast<float>(-2 * M_PI)) == static_cast<float>(-360), boost::test_tools::tolerance(1e-9f));
+
+    for(int i = 0; i < 100; ++i)
+    {
+        BOOST_TEST(ml::to_radians(ml::to_degrees(static_cast<float>(i))) == static_cast<float>(i), boost::test_tools::tolerance(1e-6f));
+        BOOST_TEST(ml::to_degrees(ml::to_radians(static_cast<float>(i))) == static_cast<float>(i), boost::test_tools::tolerance(1e-6f));
     }
 }
 

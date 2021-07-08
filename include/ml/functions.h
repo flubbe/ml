@@ -11,6 +11,18 @@
 namespace ml
 {
 
+/** convert degrees to radians. */
+inline float to_radians(float degrees)
+{
+    return degrees * static_cast<float>(M_PI / 180.0);
+}
+
+/** convert radians to degrees. */
+inline float to_degrees(float radians)
+{
+    return radians * static_cast<float>(180.0 / M_PI);
+}
+
 /** generic linear interpolation */
 template<typename T>
 const T lerp(float t, const T& a, const T& b)

@@ -41,7 +41,8 @@ BOOST_AUTO_TEST_CASE(randomized_rounding)
     std::mt19937 mersenne_engine{rnd_device()};
     std::uniform_real_distribution<float> dist{-1000, 1000};
 
-    auto gen = [&dist, &mersenne_engine]() { return dist(mersenne_engine); };
+    auto gen = [&dist, &mersenne_engine]()
+    { return dist(mersenne_engine); };
 
     for(int i = 0; i < 10000; ++i)
     {
