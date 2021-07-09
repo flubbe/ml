@@ -111,7 +111,7 @@ inline const mat4x4 rotation_z(float angle)
       {0, 0, 0, 1}};
 }
 
-/** generate a right-handed rotaiton matrix w.r.t. the given axis. */
+/** Generate a right-handed rotation matrix w.r.t. the given axis. */
 inline const mat4x4 rotation(ml::vec3 axis, float angle)
 {
     float c = std::cos(angle);
