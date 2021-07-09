@@ -19,15 +19,7 @@ struct tvec2
 
     T x, y;
 
-    tvec2()
-    {
-    }
-
-    tvec2(const vec2& o)
-    : x(o.x)
-    , y(o.y)
-    {
-    }
+    tvec2() = default;
 
     tvec2(const T& in_x, const T& in_y)
     : x(in_x)
@@ -36,54 +28,51 @@ struct tvec2
     }
 
     tvec2(const tvec2&) = default;
+    tvec2(tvec2&&) = default;
+
+    tvec2& operator=(const tvec2&) = default;
 
     /* operators. */
-    const tvec2 operator+(const tvec2& o) const
+    const tvec2 operator+(const tvec2& v) const
     {
-        return {x + o.x, y + o.y};
+        return {x + v.x, y + v.y};
     }
-    const tvec2 operator-(const tvec2& o) const
+    const tvec2 operator-(const tvec2& v) const
     {
-        return {x - o.x, y - o.y};
+        return {x - v.x, y - v.y};
     }
     const tvec2 operator-() const
     {
         return {-x, -y};
     }
-    const tvec2 operator*(float S) const
+    const tvec2 operator*(float s) const
     {
-        return {x * S, y * S};
+        return {x * s, y * s};
     }
-    const tvec2 operator/(float S) const
+    const tvec2 operator/(float s) const
     {
-        return {x / S, y / S};
+        return {x / s, y / s};
     }
 
     /* assignment */
-    tvec2& operator=(const tvec2& o)
+    tvec2& operator+=(const tvec2& v)
     {
-        x = o.x;
-        y = o.y;
+        *this = *this + v;
         return *this;
     }
-    tvec2& operator+=(const tvec2& o)
+    tvec2& operator-=(const tvec2& v)
     {
-        *this = *this + o;
+        *this = *this - v;
         return *this;
     }
-    tvec2& operator-=(const tvec2& o)
+    tvec2& operator*=(float s)
     {
-        *this = *this - o;
+        *this = *this * s;
         return *this;
     }
-    tvec2& operator*=(float S)
+    tvec2& operator/=(float s)
     {
-        *this = *this * S;
-        return *this;
-    }
-    tvec2& operator/=(float S)
-    {
-        *this = *this / S;
+        *this = *this / s;
         return *this;
     }
 
@@ -99,5 +88,12 @@ struct tvec2
         return (&x)[c];
     }
 };
+
+/** conversion from vec2. */
+template<typename T>
+inline tvec2<T> to_tvec2(const vec2& v)
+{
+    return { static_cast<T>(v.x), static_cast<T>(v.y) };
+}
 
 } /* namespace ml */

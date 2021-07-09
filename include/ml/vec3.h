@@ -26,12 +26,7 @@ struct vec3
         };
     };
 
-    vec3()
-    : x{0}
-    , y{0}
-    , z{0}
-    {
-    }
+    vec3() = default;
 
     vec3(float in_x, float in_y, float in_z)
     : x(in_x)
@@ -39,6 +34,11 @@ struct vec3
     , z(in_z)
     {
     }
+
+    vec3(const vec3&) = default;
+    vec3(vec3&&) = default;
+
+    vec3& operator=(const vec3&) = default;
 
     bool is_zero() const
     {
@@ -69,18 +69,18 @@ struct vec3
         return 1.0f / length();
     }
 
-    float dot_product(vec3 Other) const
+    float dot_product(const vec3& v) const
     {
-        return x * Other.x + y * Other.y + z * Other.z;
+        return x * v.x + y * v.y + z * v.z;
     }
-    const vec3 cross_product(vec3 Other) const
+    const vec3 cross_product(const vec3& v) const
     {
-        return {y * Other.z - z * Other.y, z * Other.x - x * Other.z, x * Other.y - y * Other.x};
+        return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x};
     }
 
-    const vec3 scale(float S) const
+    const vec3 scale(float s) const
     {
-        return {x * S, y * S, z * S};
+        return {x * s, y * s, z * s};
     }
 
     void normalize()
@@ -94,62 +94,88 @@ struct vec3
     }
 
     /* operators. */
-    const vec3 operator+(vec3 Other) const
+    const vec3 operator+(const vec3& v) const
     {
-        return {x + Other.x, y + Other.y, z + Other.z};
+        return {x + v.x, y + v.y, z + v.z};
     }
-    const vec3 operator+(float f) const
+    const vec3 operator+(float s) const
     {
-        return {x + f, y + f, z + f};
+        return {x + s, y + s, z + s};
     }
-    const vec3 operator-(vec3 Other) const
+    const vec3 operator-(const vec3& v) const
     {
-        return {x - Other.x, y - Other.y, z - Other.z};
+        return {x - v.x, y - v.y, z - v.z};
     }
-    const vec3 operator-(float f) const
+    const vec3 operator-(float s) const
     {
-        return {x - f, y - f, z - f};
+        return {x - s, y - s, z - s};
     }
     const vec3 operator-() const
     {
         return {-x, -y, -z};
     }
-    const vec3 operator*(float S) const
+    const vec3 operator*(float s) const
     {
-        return scale(S);
+        return scale(s);
     }
-    const vec3 operator/(float S) const
+    const vec3 operator*(const vec3& v) const
     {
-        return scale(1.0f / S);
+        return {x * v.x, y * v.y, z * v.z};
     }
-    float operator*(vec3 Other) const
+    const vec3 operator/(float s) const
     {
-        return dot_product(Other);
+        return scale(1.0f / s);
     }
-    const vec3 operator^(vec3 Other) const
+    const vec3 operator/(const vec3& v) const
     {
-        return cross_product(Other);
+        return {x / v.x, y / v.y, z / v.z};
+    }
+    const vec3 operator^(const vec3& v) const
+    {
+        return cross_product(v);
     }
 
-    vec3& operator+=(const vec3 other)
+    vec3& operator+=(const vec3& v)
     {
-        *this = *this + other;
+        *this = *this + v;
         return *this;
     }
-    vec3& operator-=(const vec3 other)
+    vec3& operator-=(const vec3& v)
     {
-        *this = *this - other;
+        *this = *this - v;
+        return *this;
+    }
+
+    vec3& operator*=(const vec3& v)
+    {
+        *this = *this * v;
+        return *this;
+    }
+    vec3& operator/=(const vec3& v)
+    {
+        *this = *this / v;
+        return *this;
+    }
+
+    vec3& operator*=(float s)
+    {
+        *this = *this * s;
+        return *this;
+    }
+    vec3& operator/=(float s)
+    {
+        *this = *this / s;
         return *this;
     }
 
     /* exact comparisons */
-    bool operator==(vec3 Other) const
+    bool operator==(const vec3& v) const
     {
-        return x == Other.x && y == Other.y && z == Other.z;
+        return x == v.x && y == v.y && z == v.z;
     }
-    bool operator!=(vec3 Other) const
+    bool operator!=(const vec3& v) const
     {
-        return x != Other.x || y != Other.y || z != Other.z;
+        return x != v.x || y != v.y || z != v.z;
     }
 
     /* access. */

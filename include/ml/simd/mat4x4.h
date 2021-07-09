@@ -26,35 +26,40 @@ struct mat4x4
     {
         *this = zero();
     }
-    mat4x4(vec4 row0, vec4 row1, vec4 row2, vec4 row3)
+    mat4x4(const vec4& row0, const vec4& row1, const vec4& row2, const vec4& row3)
     : rows{row0, row1, row2, row3}
     {
     }
 
+    mat4x4(const mat4x4&) = default;
+    mat4x4(mat4x4&&) = default;
+
+    mat4x4& operator=(const mat4x4&) = default;
+
     /* matrix-matrix operations. */
-    const mat4x4 operator+(const mat4x4 other) const
+    const mat4x4 operator+(const mat4x4& m) const
     {
         return {
-          rows[0] + other.rows[0],
-          rows[1] + other.rows[1],
-          rows[2] + other.rows[2],
-          rows[3] + other.rows[3],
+          rows[0] + m.rows[0],
+          rows[1] + m.rows[1],
+          rows[2] + m.rows[2],
+          rows[3] + m.rows[3],
         };
     }
-    const mat4x4 operator-(const mat4x4 other) const
+    const mat4x4 operator-(const mat4x4& m) const
     {
         return {
-          rows[0] - other.rows[0],
-          rows[1] - other.rows[1],
-          rows[2] - other.rows[2],
-          rows[3] - other.rows[3],
+          rows[0] - m.rows[0],
+          rows[1] - m.rows[1],
+          rows[2] - m.rows[2],
+          rows[3] - m.rows[3],
         };
     }
     const mat4x4 operator-() const
     {
         return {-rows[0], -rows[1], -rows[2], -rows[3]};
     }
-    const mat4x4 operator*(const mat4x4 m) const
+    const mat4x4 operator*(const mat4x4& m) const
     {
         // reference: https://github.com/microsoft/DirectXMath/blob/master/Inc/DirectXMathMatrix.inl
         mat4x4 res;
@@ -124,39 +129,48 @@ struct mat4x4
 
         return res;
     }
-    mat4x4& operator*=(const mat4x4 Other)
-    {
-        *this = *this * Other;
-        return *this;
-    }
 
-    /* scaling */
-    const mat4x4 operator*(const float s) const
-    {
-        return {rows[0] * s, rows[1] * s, rows[2] * s, rows[3] * s};
-    }
-    const mat4x4 operator*=(const float s)
-    {
-        *this = *this * s;
-        return *this;
-    }
-
-    /* exact comparisons */
-    bool operator==(const mat4x4 other) const
-    {
-        return rows[0] == other.rows[0] && rows[1] == other.rows[1] && rows[2] == other.rows[2] && rows[3] == other.rows[3];
-    }
-    bool operator!=(const mat4x4 other) const
-    {
-        return rows[0] != other.rows[0] || rows[1] != other.rows[1] || rows[2] != other.rows[2] || rows[3] != other.rows[3];
-    }
-
-    /* matrix-vector operations. */
-    const vec4 operator*(const vec4 v) const
+    /* matrix-vector multiplication. */
+    const vec4 operator*(const vec4& v) const
     {
         return {rows[0].dot_product(v), rows[1].dot_product(v), rows[2].dot_product(v), rows[3].dot_product(v)};
     }
 
+    /* scaling */
+    const mat4x4 operator*(float s) const
+    {
+        return {rows[0] * s, rows[1] * s, rows[2] * s, rows[3] * s};
+    }
+
+    /* assignments */
+    mat4x4& operator*=(const mat4x4 m)
+    {
+        *this = *this * m;
+        return *this;
+    }
+
+    const mat4x4 operator*=(float s)
+    {
+        *this = *this * s;
+        return *this;
+    }
+    const mat4x4 operator/=(float s)
+    {
+        *this = *this * (1.0f / s);
+        return *this;
+    }
+
+    /* exact comparisons */
+    bool operator==(const mat4x4& m) const
+    {
+        return rows[0] == m.rows[0] && rows[1] == m.rows[1] && rows[2] == m.rows[2] && rows[3] == m.rows[3];
+    }
+    bool operator!=(const mat4x4& m) const
+    {
+        return rows[0] != m.rows[0] || rows[1] != m.rows[1] || rows[2] != m.rows[2] || rows[3] != m.rows[3];
+    }
+
+    /* matrix transformations */
     void transpose()
     {
         _MM_TRANSPOSE4_PS(rows[0].data, rows[1].data, rows[2].data, rows[3].data);
@@ -191,6 +205,12 @@ struct mat4x4
           {0.0f, 0.0f, 0.0f, 1.0f},
         };
     }
+
+    static mat4x4 one()
+    {
+        return mat4x4{vec4::one(), vec4::one(), vec4::one(), vec4::one()};
+    }
+
     static mat4x4 zero()
     {
         return mat4x4{vec4::zero(), vec4::zero(), vec4::zero(), vec4::zero()};

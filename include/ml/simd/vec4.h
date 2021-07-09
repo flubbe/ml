@@ -34,9 +34,7 @@ struct vec4
         };
     };
 
-    vec4()
-    {
-    }
+    vec4() = default;
 
     vec4(const __m128 in_data)
     : data(in_data)
@@ -69,6 +67,11 @@ struct vec4
     {
         data = _mm_load_ps(v);
     }
+
+    vec4(const vec4&) = default;
+    vec4(vec4&&) = default;
+
+    vec4& operator=(const vec4&) = default;
 
     /** divide xyz by w and store 1/w in w */
     void divide_by_w()
@@ -109,15 +112,15 @@ struct vec4
         return 1.0f / length();
     }
 
-    float dot_product(const vec4 Other) const
+    float dot_product(const vec4& v) const
     {
         // see answer here: https://stackoverflow.com/questions/6996764/fastest-way-to-do-horizontal-sse-vector-sum-or-other-reduction
 
 #if defined(ML_USE_SSE41)
-        return _mm_cvtss_f32(_mm_dp_ps(data, Other.data, 0xff));
+        return _mm_cvtss_f32(_mm_dp_ps(data, v.data, 0xff));
 #elif defined(ML_USE_SSE3)
         // multiply entries
-        __m128 r1 = _mm_mul_ps(data, Other.data);
+        __m128 r1 = _mm_mul_ps(data, v.data);
 
         __m128 shuf = _mm_movehdup_ps(r1);    // broadcast elements 3,1 to 2,0
         __m128 sums = _mm_add_ps(r1, shuf);
@@ -126,7 +129,7 @@ struct vec4
         return _mm_cvtss_f32(sums);
 #else /* otherwise use SSE1 */
         // multiply entries
-        __m128 r1 = _mm_mul_ps(data, Other.data);
+        __m128 r1 = _mm_mul_ps(data, v.data);
 
         // horizontal sum.
         __m128 shuf = _mm_shuffle_ps(r1, r1, _MM_SHUFFLE(2, 3, 0, 1));
@@ -138,9 +141,9 @@ struct vec4
 #endif
     }
 
-    const vec4 scale(const float S) const
+    const vec4 scale(float s) const
     {
-        return {_mm_mul_ps(data, _mm_set1_ps(S))};
+        return {_mm_mul_ps(data, _mm_set1_ps(s))};
     }
 
     void normalize()
@@ -153,80 +156,80 @@ struct vec4
         return scale(one_over_length());
     }
 
-    /* operations. */
-    const vec4 operator+(const vec4 Other) const
+    /* operators. */
+    const vec4 operator+(const vec4& v) const
     {
-        return {_mm_add_ps(data, Other.data)};
+        return {_mm_add_ps(data, v.data)};
     }
-    const vec4 operator+(float f) const
+    const vec4 operator+(float s) const
     {
-        return {_mm_add_ps(data, _mm_set1_ps(f))};
+        return {_mm_add_ps(data, _mm_set1_ps(s))};
     }
-    const vec4 operator-(const vec4 Other) const
+    const vec4 operator-(const vec4& v) const
     {
-        return {_mm_sub_ps(data, Other.data)};
+        return {_mm_sub_ps(data, v.data)};
     }
-    const vec4 operator-(float f) const
+    const vec4 operator-(float s) const
     {
-        return {_mm_sub_ps(data, _mm_set1_ps(f))};
+        return {_mm_sub_ps(data, _mm_set1_ps(s))};
     }
     const vec4 operator-() const
     {
         return {_mm_sub_ps(_mm_set1_ps(0.0f), data)};
     }
-    const vec4 operator*(const vec4 Other) const
+    const vec4 operator*(const vec4& v) const
     {
-        return {_mm_mul_ps(data, Other.data)};
+        return {_mm_mul_ps(data, v.data)};
     }
-    const vec4 operator*(float S) const
+    const vec4 operator*(float s) const
     {
-        return scale(S);
+        return scale(s);
     }
-    const vec4 operator/(float S) const
+    const vec4 operator/(float s) const
     {
-        return scale(1.0f / S);
+        return scale(1.0f / s);
     }
     const vec4 operator/(const vec4 other) const
     {
         return {_mm_div_ps(data, other.data)};
     }
 
-    vec4& operator+=(const vec4 Other)
+    vec4& operator+=(const vec4& v)
     {
-        *this = *this + Other;
+        *this = *this + v;
         return *this;
     }
-    vec4& operator-=(const vec4 Other)
+    vec4& operator-=(const vec4& v)
     {
-        *this = *this - Other;
-        return *this;
-    }
-
-    vec4& operator*=(const vec4 other)
-    {
-        *this = *this * other;
+        *this = *this - v;
         return *this;
     }
 
-    vec4& operator*=(float S)
+    vec4& operator*=(const vec4& v)
     {
-        *this = scale(S);
+        *this = *this * v;
         return *this;
     }
-    vec4& operator/=(float S)
+
+    vec4& operator*=(float s)
     {
-        *this = scale(1.0f / S);
+        *this = scale(s);
+        return *this;
+    }
+    vec4& operator/=(float s)
+    {
+        *this = scale(1.0f / s);
         return *this;
     }
 
     /* exact comparisons */
-    bool operator==(const vec4 Other) const
+    bool operator==(const vec4& v) const
     {
-        return _mm_movemask_ps(_mm_cmpeq_ps(data, Other.data)) == 0xF;
+        return _mm_movemask_ps(_mm_cmpeq_ps(data, v.data)) == 0xF;
     }
-    bool operator!=(const vec4 Other) const
+    bool operator!=(const vec4& v) const
     {
-        return _mm_movemask_ps(_mm_cmpneq_ps(data, Other.data)) != 0;
+        return _mm_movemask_ps(_mm_cmpneq_ps(data, v.data)) != 0;
     }
 
     /* access. */

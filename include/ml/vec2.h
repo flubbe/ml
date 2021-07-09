@@ -26,15 +26,7 @@ struct vec2
         };
     };
 
-    vec2()
-    {
-    }
-
-    vec2(const vec2& other)
-    : x(other.x)
-    , y(other.y)
-    {
-    }
+    vec2() = default;
 
     vec2(float in_x, float in_y)
     : x(in_x)
@@ -42,12 +34,14 @@ struct vec2
     {
     }
 
-    /*
-     * Vector operations.
-     */
-    float dot_product(vec2 other) const
+    vec2(const vec2&) = default;
+    vec2(vec2&&) = default;
+
+    vec2& operator=(const vec2&) = default;
+
+    bool is_zero() const
     {
-        return x * other.x + y * other.y;
+        return x == 0 && y == 0;
     }
 
     float length_squared() const
@@ -64,37 +58,67 @@ struct vec2
 #endif
     }
 
-    float area(vec2 other) const
+    float one_over_length() const
     {
-        return x * other.y - y * other.x;
+        if(is_zero())
+        {
+            return 1.0f;
+        }
+
+        return 1.0f / length();
     }
 
-    int area_sign(vec2 other) const
+    float dot_product(const vec2& v) const
+    {
+        return x * v.x + y * v.y;
+    }
+
+    const vec2 scale(float s) const
+    {
+        return {x * s, y * s};
+    }
+
+    void normalize()
+    {
+        /* one_over_length is safe to call on zero vectors - no check needed. */
+        *this = *this * one_over_length();
+    }
+    const vec2 normalized() const
+    {
+        return *this * one_over_length();
+    }
+
+    float area(const vec2& v) const
+    {
+        return x * v.y - y * v.x;
+    }
+
+    int area_sign(const vec2& v) const
     {
 #ifdef ML_NO_BOOST
         const auto a = area(other);
         return (a == 0) ? 0 : ((a > 0) ? 1 : -1);
 #else
-        return boost::math::sign(area(other));
+        return boost::math::sign(area(v));
 #endif
     }
 
     /* operators. */
-    const vec2 operator+(vec2 other) const
+    const vec2 operator+(const vec2& v) const
     {
-        return {x + other.x, y + other.y};
+        return {x + v.x, y + v.y};
     }
-    const vec2 operator+(float f) const
+    const vec2 operator+(float s) const
     {
-        return {x + f, y + f};
+        return {x + s, y + s};
     }
     const vec2 operator-(vec2 other) const
     {
         return {x - other.x, y - other.y};
     }
-    const vec2 operator-(float f) const
+    const vec2 operator-(float s) const
     {
-        return {x - f, y - f};
+        return {x - s, y - s};
     }
     const vec2 operator-() const
     {
@@ -102,30 +126,43 @@ struct vec2
     }
     const vec2 operator*(float s) const
     {
-        return {x * s, y * s};
+        return scale(s);
+    }
+    const vec2 operator*(const vec2& v) const
+    {
+        return {x * v.x, y * v.y};
     }
     const vec2 operator/(float s) const
     {
-        return {x / s, y / s};
+        return scale(1.0f / s);
+    }
+    const vec2 operator/(const vec2& v) const
+    {
+        return {x / v.x, y / v.y};
     }
 
-    /* assignment */
-    vec2& operator=(vec2 other)
+    vec2& operator+=(const vec2& v)
     {
-        x = other.x;
-        y = other.y;
+        *this = *this + v;
         return *this;
     }
-    vec2& operator+=(vec2 other)
+    vec2& operator-=(const vec2& v)
     {
-        *this = *this + other;
+        *this = *this - v;
         return *this;
     }
-    vec2& operator-=(vec2 other)
+
+    vec2& operator*=(const vec2& v)
     {
-        *this = *this - other;
+        *this = *this * v;
         return *this;
     }
+    vec2& operator/=(const vec2& v)
+    {
+        *this = *this / v;
+        return *this;
+    }
+
     vec2& operator*=(float s)
     {
         *this = *this * s;
@@ -166,6 +203,17 @@ struct vec2
 #    undef ML_SWIZZLE_VEC4_TYPE
 #    undef ML_SWIZZLE_COMPONENTS
 #endif /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
+
+    /* special vectors. */
+    static const vec2 zero()
+    {
+        return {0, 0};
+    }
+
+    static const vec2 one()
+    {
+        return {1, 1};
+    }
 };
 
 } /* namespace ml */

@@ -31,12 +31,6 @@ struct vec2_fixed
 
     vec2_fixed() = default;
 
-    vec2_fixed(const vec2_fixed& Other)
-    : x{Other.x}
-    , y{Other.y}
-    {
-    }
-
     vec2_fixed(const type& in_x, const type& in_y)
     : x{in_x}
     , y{in_y}
@@ -49,13 +43,18 @@ struct vec2_fixed
     {
     }
 
+    vec2_fixed(const vec2_fixed&) = default;
+    vec2_fixed(vec2_fixed&&) = default;
+
+    vec2_fixed<F>& operator=(const vec2_fixed<F>&) = default;
+
     /*
      * Vector operations.
      */
 
-    auto dot_product(vec2_fixed<F> Other) const -> const decltype(x * Other.x + y * Other.y)
+    auto dot_product(const vec2_fixed<F>& v) const -> const decltype(x * v.x + y * v.y)
     {
-        return x * Other.x + y * Other.y;
+        return x * v.x + y * v.y;
     }
 
     const type length_squared() const
@@ -63,27 +62,32 @@ struct vec2_fixed
         return dot_product(*this);
     }
 
-    auto area(vec2_fixed<F> Other) const -> const decltype(x * Other.y - y * Other.x)
+    auto area(const vec2_fixed<F>& v) const -> const decltype(x * v.y - y * v.x)
     {
-        return x * Other.y - y * Other.x;
+        return x * v.y - y * v.x;
     }
 
-    int area_sign(vec2_fixed<F> Other) const
+    int area_sign(const vec2_fixed<F>& v) const
     {
-        return boost::math::sign(area(Other));
+#ifdef ML_NO_BOOST
+        const auto a = area(other);
+        return (a == 0) ? 0 : ((a > 0) ? 1 : -1);
+#else
+        return boost::math::sign(area(v));
+#endif
     }
 
     /*
      * operators. 
      */
 
-    const vec2_fixed<F> operator+(const vec2_fixed<F>& Other) const
+    const vec2_fixed<F> operator+(const vec2_fixed<F>& v) const
     {
-        return {x + Other.x, y + Other.y};
+        return {x + v.x, y + v.y};
     }
-    const vec2_fixed<F> operator-(const vec2_fixed<F>& Other) const
+    const vec2_fixed<F> operator-(const vec2_fixed<F>& v) const
     {
-        return {x - Other.x, y - Other.y};
+        return {x - v.x, y - v.y};
     }
     const vec2_fixed<F> operator-() const
     {
@@ -102,20 +106,14 @@ struct vec2_fixed
      * assignments.
      */
 
-    vec2_fixed<F>& operator=(vec2_fixed<F> Other)
+    vec2_fixed<F>& operator+=(const vec2_fixed<F>& v)
     {
-        x = Other.x;
-        y = Other.y;
+        *this = *this + v;
         return *this;
     }
-    vec2_fixed<F>& operator+=(vec2_fixed<F> Other)
+    vec2_fixed<F>& operator-=(const vec2_fixed<F>& v)
     {
-        *this = *this + Other;
-        return *this;
-    }
-    vec2_fixed<F>& operator-=(vec2_fixed<F> Other)
-    {
-        *this = *this - Other;
+        *this = *this - v;
         return *this;
     }
 
@@ -123,13 +121,13 @@ struct vec2_fixed
      * exact comparisons.
      */
 
-    bool operator==(vec2_fixed<F> Other) const
+    bool operator==(const vec2_fixed<F>& v) const
     {
-        return x == Other.x && y == Other.y;
+        return x == v.x && y == v.y;
     }
-    bool operator!=(vec2_fixed<F> Other) const
+    bool operator!=(const vec2_fixed<F>& v) const
     {
-        return x != Other.x || y != Other.y;
+        return x != v.x || y != v.y;
     }
 
     /* 

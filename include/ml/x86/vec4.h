@@ -30,11 +30,9 @@ struct vec4
         };
     };
 
-    vec4()
-    {
-    }
+    vec4() = default;
 
-    vec4(const vec3 v)
+    vec4(const vec3& v)
     : x(v.x)
     , y(v.y)
     , z(v.z)
@@ -42,7 +40,7 @@ struct vec4
     {
     }
 
-    vec4(const vec3 v, float in_w)
+    vec4(const vec3& v, float in_w)
     : x(v.x)
     , y(v.y)
     , z(v.z)
@@ -73,6 +71,11 @@ struct vec4
         z = v[2];
         w = v[3];
     }
+
+    vec4(const vec4&) = default;
+    vec4(vec4&&) = default;
+
+    vec4& operator=(const vec4&) = default;
 
     void divide_by_w()
     {
@@ -114,19 +117,19 @@ struct vec4
         return 1.0f / length();
     }
 
-    float dot_product(const vec4& Other) const
+    float dot_product(const vec4& v) const
     {
-        return x * Other.x + y * Other.y + z * Other.z + w * Other.w;
+        return x * v.x + y * v.y + z * v.z + w * v.w;
     }
 
-    const vec4 scale(const float S) const
+    const vec4 scale(float s) const
     {
-        return {x * S, y * S, z * S, w * S};
+        return {x * s, y * s, z * s, w * s};
     }
 
     void normalize()
     {
-        /* OneOverLength is safe to call on zero vectors - no check needed. */
+        /* one_over_length is safe to call on zero vectors - no check needed. */
         *this = *this * one_over_length();
     }
     const vec4 normalized() const
@@ -134,80 +137,86 @@ struct vec4
         return *this * one_over_length();
     }
 
-    /* operations. */
-    const vec4 operator+(const vec4& Other) const
+    /* operators. */
+    const vec4 operator+(const vec4& v) const
     {
-        return {x + Other.x, y + Other.y, z + Other.z, w + Other.w};
+        return {x + v.x, y + v.y, z + v.z, w + v.w};
     }
-    const vec4 operator+(float f) const
+    const vec4 operator+(float s) const
     {
-        return {x + f, y + f, z + f, w + f};
+        return {x + s, y + s, z + s, w + s};
     }
-    const vec4 operator-(const vec4& Other) const
+    const vec4 operator-(const vec4& v) const
     {
-        return {x - Other.x, y - Other.y, z - Other.z, w - Other.w};
+        return {x - v.x, y - v.y, z - v.z, w - v.w};
     }
-    const vec4 operator-(float f) const
+    const vec4 operator-(float s) const
     {
-        return {x - f, y - f, z - f, w - f};
+        return {x - s, y - s, z - s, w - s};
     }
     const vec4 operator-() const
     {
         return {-x, -y, -z, -w};
     }
-    const vec4 operator*(const vec4& Other) const
+    const vec4 operator*(float s) const
     {
-        return {x * Other.x, y * Other.y, z * Other.z, w * Other.w};
+        return scale(s);
     }
-    const vec4 operator*(float S) const
+    const vec4 operator*(const vec4& v) const
     {
-        return scale(S);
+        return {x * v.x, y * v.y, z * v.z, w * v.w};
     }
-    const vec4 operator/(float S) const
+    const vec4 operator/(float s) const
     {
-        return scale(1.0f / S);
+        return scale(1.0f / s);
     }
-    const vec4 operator/(const vec4 other) const
+    const vec4 operator/(const vec4& v) const
     {
-        return {x / other.x, y / other.y, z / other.z, w / other.w};
-    }
-
-    vec4& operator+=(const vec4& Other)
-    {
-        *this = *this + Other;
-        return *this;
-    }
-    vec4& operator-=(const vec4& Other)
-    {
-        *this = *this - Other;
-        return *this;
+        return {x / v.x, y / v.y, z / v.z, w / v.w};
     }
 
-    vec4& operator*=(const vec4 other)
+    vec4& operator+=(const vec4& v)
     {
-        *this = *this * other;
+        *this = *this + v;
+        return *this;
+    }
+    vec4& operator-=(const vec4& v)
+    {
+        *this = *this - v;
         return *this;
     }
 
-    vec4& operator*=(float S)
+    vec4& operator*=(const vec4& v)
     {
-        *this = *this * S;
+        *this = *this * v;
         return *this;
     }
-    vec4& operator/=(float S)
+
+    vec4& operator/=(const vec4& v)
     {
-        *this = *this / S;
+        *this = *this / v;
+        return *this;
+    }
+
+    vec4& operator*=(float s)
+    {
+        *this = *this * s;
+        return *this;
+    }
+    vec4& operator/=(float s)
+    {
+        *this = *this / s;
         return *this;
     }
 
     /* exact comparisons */
-    bool operator==(const vec4& Other) const
+    bool operator==(const vec4& v) const
     {
-        return x == Other.x && y == Other.y && z == Other.z && w == Other.w;
+        return x == v.x && y == v.y && z == v.z && w == v.w;
     }
-    bool operator!=(const vec4& Other) const
+    bool operator!=(const vec4& v) const
     {
-        return x != Other.x || y != Other.y || z != Other.z || w != Other.w;
+        return x != v.x || y != v.y || z != v.z || w != v.w;
     }
 
     /* access. */
