@@ -18,7 +18,7 @@ struct vec4
     {
         struct
         {
-            float x{0}, y{0}, z{0}, w{1};
+            float x, y, z, w;
         };
         struct
         {
@@ -29,38 +29,44 @@ struct vec4
             float s, t, p, q;
         };
     };
-
-    vec4() = default;
+    
+    vec4()
+    : x{0}
+    , y{0}
+    , z{0}
+    , w{1}
+    {
+    }
 
     vec4(const vec3& v)
-    : x(v.x)
-    , y(v.y)
-    , z(v.z)
-    , w(1)
+    : x{v.x}
+    , y{v.y}
+    , z{v.z}
+    , w{1}
     {
     }
 
     vec4(const vec3& v, float in_w)
-    : x(v.x)
-    , y(v.y)
-    , z(v.z)
-    , w(in_w)
+    : x{v.x}
+    , y{v.y}
+    , z{v.z}
+    , w{in_w}
     {
     }
 
     vec4(float in_x, float in_y, float in_z)
-    : x(in_x)
-    , y(in_y)
-    , z(in_z)
-    , w(1)
+    : x{in_x}
+    , y{in_y}
+    , z{in_z}
+    , w{1}
     {
     }
 
     vec4(float in_x, float in_y, float in_z, float in_w)
-    : x(in_x)
-    , y(in_y)
-    , z(in_z)
-    , w(in_w)
+    : x{in_x}
+    , y{in_y}
+    , z{in_z}
+    , w{in_w}
     {
     }
 

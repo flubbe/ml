@@ -18,7 +18,7 @@ struct vec3
     {
         struct
         {
-            float x{0}, y{0}, z{0};
+            float x, y, z;
         };
         struct
         {
@@ -26,12 +26,17 @@ struct vec3
         };
     };
 
-    vec3() = default;
+    vec3()
+    : x{0}
+    , y{0}
+    , z{0}
+    {
+    }
 
     vec3(float in_x, float in_y, float in_z)
-    : x(in_x)
-    , y(in_y)
-    , z(in_z)
+    : x{in_x}
+    , y{in_y}
+    , z{in_z}
     {
     }
 

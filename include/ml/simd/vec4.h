@@ -22,7 +22,7 @@ struct vec4
         __m128 data;
         struct
         {
-            float x{0}, y{0}, z{0}, w{1};
+            float x, y, z, w;
         };
         struct
         {
@@ -34,7 +34,10 @@ struct vec4
         };
     };
 
-    vec4() = default;
+    vec4()
+    : data{_mm_set_ps(1.f, 0.f, 0.f, 0.f)}
+    {
+    }
 
     vec4(const __m128 in_data)
     : data(in_data)

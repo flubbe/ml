@@ -18,7 +18,7 @@ struct vec2
     {
         struct
         {
-            float x{0}, y{0};
+            float x, y;
         };
         struct
         {
@@ -26,11 +26,15 @@ struct vec2
         };
     };
 
-    vec2() = default;
+    vec2()
+    : x{0}
+    , y{0}
+    {
+    }
 
     vec2(float in_x, float in_y)
-    : x(in_x)
-    , y(in_y)
+    : x{in_x}
+    , y{in_y}
     {
     }
 
