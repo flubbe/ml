@@ -144,7 +144,7 @@ inline mat4x4 look_at(const vec3& eye, const vec3& target, const vec3& up)
              {new_up, 0.0f},
              {-forward, 0.0f},
              {ml::vec3::zero(), 1.0f}}
-           * ml::matrices::translation(-eye.x, -eye.y, -eye.z);
+           * translation(-eye.x, -eye.y, -eye.z);
 }
 
 } /* namespace matrices */
