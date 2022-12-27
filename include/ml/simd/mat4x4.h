@@ -37,7 +37,7 @@ struct mat4x4
     mat4x4& operator=(const mat4x4&) = default;
 
     /* matrix-matrix operations. */
-    const mat4x4 operator+(const mat4x4& m) const
+    mat4x4 operator+(const mat4x4& m) const
     {
         return {
           rows[0] + m.rows[0],
@@ -46,7 +46,7 @@ struct mat4x4
           rows[3] + m.rows[3],
         };
     }
-    const mat4x4 operator-(const mat4x4& m) const
+    mat4x4 operator-(const mat4x4& m) const
     {
         return {
           rows[0] - m.rows[0],
@@ -55,11 +55,11 @@ struct mat4x4
           rows[3] - m.rows[3],
         };
     }
-    const mat4x4 operator-() const
+    mat4x4 operator-() const
     {
         return {-rows[0], -rows[1], -rows[2], -rows[3]};
     }
-    const mat4x4 operator*(const mat4x4& m) const
+    mat4x4 operator*(const mat4x4& m) const
     {
         // reference: https://github.com/microsoft/DirectXMath/blob/master/Inc/DirectXMathMatrix.inl
         mat4x4 res;
@@ -131,13 +131,13 @@ struct mat4x4
     }
 
     /* matrix-vector multiplication. */
-    const vec4 operator*(const vec4& v) const
+    vec4 operator*(const vec4& v) const
     {
         return {rows[0].dot_product(v), rows[1].dot_product(v), rows[2].dot_product(v), rows[3].dot_product(v)};
     }
 
     /* scaling */
-    const mat4x4 operator*(float s) const
+    mat4x4 operator*(float s) const
     {
         return {rows[0] * s, rows[1] * s, rows[2] * s, rows[3] * s};
     }
@@ -149,12 +149,12 @@ struct mat4x4
         return *this;
     }
 
-    const mat4x4 operator*=(float s)
+    mat4x4 operator*=(float s)
     {
         *this = *this * s;
         return *this;
     }
-    const mat4x4 operator/=(float s)
+    mat4x4 operator/=(float s)
     {
         *this = *this * (1.0f / s);
         return *this;
@@ -176,7 +176,7 @@ struct mat4x4
         _MM_TRANSPOSE4_PS(rows[0].data, rows[1].data, rows[2].data, rows[3].data);
     }
 
-    const mat4x4 transposed() const
+    mat4x4 transposed() const
     {
         mat4x4 m{*this};
         m.transpose();

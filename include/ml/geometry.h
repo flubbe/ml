@@ -55,7 +55,7 @@ struct line
     {
     }
 
-    const T evaluate_at(float param) const
+    T evaluate_at(float param) const
     {
         return pos + dir * param;
     }
@@ -63,7 +63,7 @@ struct line
 
 /** create a line from two points. */
 template<typename T>
-const line<T> create_line(const T& p1, const T& p2)
+line<T> create_line(const T& p1, const T& p2)
 {
     return {p1, p2 - p1};
 }

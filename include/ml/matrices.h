@@ -15,7 +15,7 @@ namespace matrices
 {
 
 /** Generate a perspective projection matrix (for a symmetric frustum). */
-inline const mat4x4 perspective_projection(float aspect, float fov, float znear, float zfar)
+inline mat4x4 perspective_projection(float aspect, float fov, float znear, float zfar)
 {
     /* aspect is width/height */
     const auto zrange = znear - zfar;
@@ -29,7 +29,7 @@ inline const mat4x4 perspective_projection(float aspect, float fov, float znear,
 }
 
 /** Generate an orthographic projection matrix. */
-inline const mat4x4 orthographic_projection(float left, float right, float bottom, float top, float near, float far)
+inline mat4x4 orthographic_projection(float left, float right, float bottom, float top, float near, float far)
 {
     const auto one_over_width = 1.0f / (right - left);
     const auto one_over_height = 1.0f / (top - bottom);
@@ -43,7 +43,7 @@ inline const mat4x4 orthographic_projection(float left, float right, float botto
 }
 
 /** Generate a translation matrix. */
-inline const mat4x4 translation(float x, float y, float z)
+inline mat4x4 translation(float x, float y, float z)
 {
     return {
       {1, 0, 0, x},
@@ -53,7 +53,7 @@ inline const mat4x4 translation(float x, float y, float z)
 }
 
 /** Generate a 4-dimensional diagonal matrix. */
-inline const mat4x4 diagonal(float x, float y, float z, float w)
+inline mat4x4 diagonal(float x, float y, float z, float w)
 {
     return {
       {x, 0, 0, 0},
@@ -63,7 +63,7 @@ inline const mat4x4 diagonal(float x, float y, float z, float w)
 }
 
 /** Generate a scaling matrix. */
-inline const mat4x4 scaling(float s)
+inline mat4x4 scaling(float s)
 {
     return {
       {s, 0, 0, 0},
@@ -73,7 +73,7 @@ inline const mat4x4 scaling(float s)
 }
 
 /** Generate a right-handed rotation matrix w.r.t. x-axis. */
-inline const mat4x4 rotation_x(float angle)
+inline mat4x4 rotation_x(float angle)
 {
     float c = std::cos(angle);
     float s = std::sin(angle);
@@ -86,7 +86,7 @@ inline const mat4x4 rotation_x(float angle)
 }
 
 /** Generate a right-handed rotation matrix w.r.t. y-axis. */
-inline const mat4x4 rotation_y(float angle)
+inline mat4x4 rotation_y(float angle)
 {
     float c = std::cos(angle);
     float s = std::sin(angle);
@@ -99,7 +99,7 @@ inline const mat4x4 rotation_y(float angle)
 }
 
 /** Generate a right-handed rotation matrix w.r.t. z-axis. */
-inline const mat4x4 rotation_z(float angle)
+inline mat4x4 rotation_z(float angle)
 {
     float c = std::cos(angle);
     float s = std::sin(angle);
@@ -112,7 +112,7 @@ inline const mat4x4 rotation_z(float angle)
 }
 
 /** Generate a right-handed rotation matrix w.r.t. the given axis. */
-inline const mat4x4 rotation(ml::vec3 axis, float angle)
+inline mat4x4 rotation(ml::vec3 axis, float angle)
 {
     float c = std::cos(angle);
     float s = std::sin(angle);
@@ -130,6 +130,21 @@ inline const mat4x4 rotation(ml::vec3 axis, float angle)
       {xy * (1 - c) + axis.z * s, c + y_sqr * (1 - c), yz * (1 - c) - axis.x * s, 0},
       {xz * (1 - c) - axis.y * s, yz * (1 - c) + axis.x * s, c + z_sqr * (1 - c), 0},
       {0, 0, 0, 1}};
+}
+
+/** Define a viewing transformation. */
+inline mat4x4 look_at(const vec3& eye, const vec3& target, const vec3& up)
+{
+    vec3 forward{(target - eye).normalized()};
+    vec3 side{forward.cross_product(up).normalized()};
+    vec3 new_up{side.cross_product(forward)};
+
+    return mat4x4{
+             {side, 0.0f},
+             {new_up, 0.0f},
+             {-forward, 0.0f},
+             {ml::vec3::zero(), 1.0f}}
+           * ml::matrices::translation(-eye.x, -eye.y, -eye.z);
 }
 
 } /* namespace matrices */

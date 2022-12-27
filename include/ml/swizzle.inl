@@ -29,13 +29,13 @@
 #ifdef ML_DEFINE_SWIZZLE_FUNCTIONS
 #    ifdef ML_IMPLEMENT_SWIZZLE_FUNCTIONS
 #        define ML_SWIZZLE2(a, b)                               \
-            inline const ml::vec2 ML_SWIZZLE_TYPE::a##b() const \
+            inline ml::vec2 ML_SWIZZLE_TYPE::a##b() const \
             {                                                   \
                 return {a, b};                                  \
             }
 #    else
 #        define ML_SWIZZLE2(a, b) \
-            const vec2 a##b() const;
+            vec2 a##b() const;
 #    endif
 #else
 #    define ML_SWIZZLE2(a, b)
@@ -91,13 +91,13 @@ ML_SWIZZLE2(w, w)
 #ifdef ML_DEFINE_SWIZZLE_FUNCTIONS
 #    ifdef ML_IMPLEMENT_SWIZZLE_FUNCTIONS
 #        define ML_SWIZZLE3(a, b, c)                               \
-            inline const ml::vec3 ML_SWIZZLE_TYPE::a##b##c() const \
+            inline ml::vec3 ML_SWIZZLE_TYPE::a##b##c() const \
             {                                                      \
                 return {a, b, c};                                  \
             }
 #    else
 #        define ML_SWIZZLE3(a, b, c) \
-            const struct vec3 a##b##c() const;
+            struct vec3 a##b##c() const;
 #    endif
 #else
 #    define ML_SWIZZLE3(a, b, c)
@@ -263,13 +263,13 @@ ML_SWIZZLE3(w, w, w)
 #ifdef ML_DEFINE_SWIZZLE_FUNCTIONS
 #    ifdef ML_IMPLEMENT_SWIZZLE_FUNCTIONS
 #        define ML_SWIZZLE4(a, b, c, d)                               \
-            inline const ml::vec4 ML_SWIZZLE_TYPE::a##b##c##d() const \
+            inline ml::vec4 ML_SWIZZLE_TYPE::a##b##c##d() const \
             {                                                         \
                 return {a, b, c, d};                                  \
             }
 #    else
 #        define ML_SWIZZLE4(a, b, c, d) \
-            const ML_SWIZZLE_VEC4_TYPE a##b##c##d() const;
+            ML_SWIZZLE_VEC4_TYPE a##b##c##d() const;
 #    endif
 #else
 #    define ML_SWIZZLE4(a, b, c, d)

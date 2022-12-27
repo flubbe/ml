@@ -144,7 +144,7 @@ struct vec4
 #endif
     }
 
-    const vec4 scale(float s) const
+    vec4 scale(float s) const
     {
         return {_mm_mul_ps(data, _mm_set1_ps(s))};
     }
@@ -154,45 +154,45 @@ struct vec4
         /* one_over_length is safe to call on zero vectors - no check needed. */
         *this = scale(one_over_length());
     }
-    const vec4 normalized() const
+    vec4 normalized() const
     {
         return scale(one_over_length());
     }
 
     /* operators. */
-    const vec4 operator+(const vec4& v) const
+    vec4 operator+(const vec4& v) const
     {
         return {_mm_add_ps(data, v.data)};
     }
-    const vec4 operator+(float s) const
+    vec4 operator+(float s) const
     {
         return {_mm_add_ps(data, _mm_set1_ps(s))};
     }
-    const vec4 operator-(const vec4& v) const
+    vec4 operator-(const vec4& v) const
     {
         return {_mm_sub_ps(data, v.data)};
     }
-    const vec4 operator-(float s) const
+    vec4 operator-(float s) const
     {
         return {_mm_sub_ps(data, _mm_set1_ps(s))};
     }
-    const vec4 operator-() const
+    vec4 operator-() const
     {
         return {_mm_sub_ps(_mm_set1_ps(0.0f), data)};
     }
-    const vec4 operator*(const vec4& v) const
+    vec4 operator*(const vec4& v) const
     {
         return {_mm_mul_ps(data, v.data)};
     }
-    const vec4 operator*(float s) const
+    vec4 operator*(float s) const
     {
         return scale(s);
     }
-    const vec4 operator/(float s) const
+    vec4 operator/(float s) const
     {
         return scale(1.0f / s);
     }
-    const vec4 operator/(const vec4 other) const
+    vec4 operator/(const vec4 other) const
     {
         return {_mm_div_ps(data, other.data)};
     }
@@ -254,25 +254,25 @@ struct vec4
 #    undef ML_SWIZZLE_VEC4_TYPE
 #    undef ML_SWIZZLE_COMPONENTS
 #else /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
-    const vec2 xy() const
+    vec2 xy() const
     {
         return {x, y};
     }
 
-    const vec3 xyz() const
+    vec3 xyz() const
     {
         return {x, y, z};
     }
 #endif
 
     /*  special vectors. */
-    static const vec4 zero()
+    static vec4 zero()
     {
         // note that by default w is initialized to 1, so we initialize the vector explicitely.
         return {_mm_set_ps1(0.0)};
     }
 
-    static const vec4 one()
+    static vec4 one()
     {
         return {_mm_set_ps1(1.0)};
     }

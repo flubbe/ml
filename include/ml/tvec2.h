@@ -33,23 +33,23 @@ struct tvec2
     tvec2& operator=(const tvec2&) = default;
 
     /* operators. */
-    const tvec2 operator+(const tvec2& v) const
+    tvec2 operator+(const tvec2& v) const
     {
         return {x + v.x, y + v.y};
     }
-    const tvec2 operator-(const tvec2& v) const
+    tvec2 operator-(const tvec2& v) const
     {
         return {x - v.x, y - v.y};
     }
-    const tvec2 operator-() const
+    tvec2 operator-() const
     {
         return {-x, -y};
     }
-    const tvec2 operator*(float s) const
+    tvec2 operator*(float s) const
     {
         return {x * s, y * s};
     }
-    const tvec2 operator/(float s) const
+    tvec2 operator/(float s) const
     {
         return {x / s, y / s};
     }
@@ -82,7 +82,7 @@ struct tvec2
         assert(c >= 0 && c < 2);
         return (&x)[c];
     }
-    const type operator[](int c) const
+    type operator[](int c) const
     {
         assert(c >= 0 && c < 2);
         return (&x)[c];

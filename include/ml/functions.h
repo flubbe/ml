@@ -25,7 +25,7 @@ inline float to_degrees(float radians)
 
 /** generic linear interpolation */
 template<typename T>
-const T lerp(float t, const T& a, const T& b)
+T lerp(float t, const T& a, const T& b)
 {
     return a * (1.0f - t) + b * t;
 }

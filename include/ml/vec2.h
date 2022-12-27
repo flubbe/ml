@@ -77,7 +77,7 @@ struct vec2
         return x * v.x + y * v.y;
     }
 
-    const vec2 scale(float s) const
+    vec2 scale(float s) const
     {
         return {x * s, y * s};
     }
@@ -87,7 +87,7 @@ struct vec2
         /* one_over_length is safe to call on zero vectors - no check needed. */
         *this = *this * one_over_length();
     }
-    const vec2 normalized() const
+    vec2 normalized() const
     {
         return *this * one_over_length();
     }
@@ -108,39 +108,39 @@ struct vec2
     }
 
     /* operators. */
-    const vec2 operator+(const vec2& v) const
+    vec2 operator+(const vec2& v) const
     {
         return {x + v.x, y + v.y};
     }
-    const vec2 operator+(float s) const
+    vec2 operator+(float s) const
     {
         return {x + s, y + s};
     }
-    const vec2 operator-(vec2 other) const
+    vec2 operator-(vec2 other) const
     {
         return {x - other.x, y - other.y};
     }
-    const vec2 operator-(float s) const
+    vec2 operator-(float s) const
     {
         return {x - s, y - s};
     }
-    const vec2 operator-() const
+    vec2 operator-() const
     {
         return {-x, -y};
     }
-    const vec2 operator*(float s) const
+    vec2 operator*(float s) const
     {
         return scale(s);
     }
-    const vec2 operator*(const vec2& v) const
+    vec2 operator*(const vec2& v) const
     {
         return {x * v.x, y * v.y};
     }
-    const vec2 operator/(float s) const
+    vec2 operator/(float s) const
     {
         return scale(1.0f / s);
     }
-    const vec2 operator/(const vec2& v) const
+    vec2 operator/(const vec2& v) const
     {
         return {x / v.x, y / v.y};
     }
@@ -209,12 +209,12 @@ struct vec2
 #endif /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
 
     /* special vectors. */
-    static const vec2 zero()
+    static vec2 zero()
     {
         return {0, 0};
     }
 
-    static const vec2 one()
+    static vec2 one()
     {
         return {1, 1};
     }

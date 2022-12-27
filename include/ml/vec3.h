@@ -78,12 +78,12 @@ struct vec3
     {
         return x * v.x + y * v.y + z * v.z;
     }
-    const vec3 cross_product(const vec3& v) const
+    vec3 cross_product(const vec3& v) const
     {
         return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x};
     }
 
-    const vec3 scale(float s) const
+    vec3 scale(float s) const
     {
         return {x * s, y * s, z * s};
     }
@@ -93,49 +93,49 @@ struct vec3
         /* one_over_length is safe to call on zero vectors - no check needed. */
         *this = scale(one_over_length());
     }
-    const vec3 normalized() const
+    vec3 normalized() const
     {
         return scale(one_over_length());
     }
 
     /* operators. */
-    const vec3 operator+(const vec3& v) const
+    vec3 operator+(const vec3& v) const
     {
         return {x + v.x, y + v.y, z + v.z};
     }
-    const vec3 operator+(float s) const
+    vec3 operator+(float s) const
     {
         return {x + s, y + s, z + s};
     }
-    const vec3 operator-(const vec3& v) const
+    vec3 operator-(const vec3& v) const
     {
         return {x - v.x, y - v.y, z - v.z};
     }
-    const vec3 operator-(float s) const
+    vec3 operator-(float s) const
     {
         return {x - s, y - s, z - s};
     }
-    const vec3 operator-() const
+    vec3 operator-() const
     {
         return {-x, -y, -z};
     }
-    const vec3 operator*(float s) const
+    vec3 operator*(float s) const
     {
         return scale(s);
     }
-    const vec3 operator*(const vec3& v) const
+    vec3 operator*(const vec3& v) const
     {
         return {x * v.x, y * v.y, z * v.z};
     }
-    const vec3 operator/(float s) const
+    vec3 operator/(float s) const
     {
         return scale(1.0f / s);
     }
-    const vec3 operator/(const vec3& v) const
+    vec3 operator/(const vec3& v) const
     {
         return {x / v.x, y / v.y, z / v.z};
     }
-    const vec3 operator^(const vec3& v) const
+    vec3 operator^(const vec3& v) const
     {
         return cross_product(v);
     }
@@ -203,20 +203,20 @@ struct vec3
 #    undef ML_SWIZZLE_COMPONENTS
 #else  /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
     /* projection onto first components */
-    const vec2 xy() const
+    vec2 xy() const
     {
         return {x, y};
     }
 #endif /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
 
     /* special vectors. */
-    static const vec3 zero()
+    static vec3 zero()
     {
         // vec3 is initialized to zero by default.
         return {};
     }
 
-    static const vec3 one()
+    static vec3 one()
     {
         return {1, 1, 1};
     }

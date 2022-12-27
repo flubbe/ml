@@ -52,17 +52,17 @@ struct vec2_fixed
      * Vector operations.
      */
 
-    auto dot_product(const vec2_fixed<F>& v) const -> const decltype(x * v.x + y * v.y)
+    auto dot_product(const vec2_fixed<F>& v) const -> decltype(x * v.x + y * v.y)
     {
         return x * v.x + y * v.y;
     }
 
-    const type length_squared() const
+    type length_squared() const
     {
         return dot_product(*this);
     }
 
-    auto area(const vec2_fixed<F>& v) const -> const decltype(x * v.y - y * v.x)
+    auto area(const vec2_fixed<F>& v) const -> decltype(x * v.y - y * v.x)
     {
         return x * v.y - y * v.x;
     }
@@ -81,23 +81,23 @@ struct vec2_fixed
      * operators. 
      */
 
-    const vec2_fixed<F> operator+(const vec2_fixed<F>& v) const
+    vec2_fixed<F> operator+(const vec2_fixed<F>& v) const
     {
         return {x + v.x, y + v.y};
     }
-    const vec2_fixed<F> operator-(const vec2_fixed<F>& v) const
+    vec2_fixed<F> operator-(const vec2_fixed<F>& v) const
     {
         return {x - v.x, y - v.y};
     }
-    const vec2_fixed<F> operator-() const
+    vec2_fixed<F> operator-() const
     {
         return {-x, -y};
     }
-    const vec2_fixed<F> operator*(float s) const
+    vec2_fixed<F> operator*(float s) const
     {
         return {x * s, y * s};
     }
-    const vec2_fixed<F> operator/(float s) const
+    vec2_fixed<F> operator/(float s) const
     {
         return {x / s, y / s};
     }
@@ -139,7 +139,7 @@ struct vec2_fixed
         assert(c >= 0 && c < 2);
         return (&x)[c];
     }
-    const type operator[](int c) const
+    type operator[](int c) const
     {
         assert(c >= 0 && c < 2);
         return (&x)[c];

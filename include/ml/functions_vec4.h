@@ -12,13 +12,13 @@ namespace ml
 {
 
 /** Linear vector interpolation. */
-inline const vec4 lerp(float t, vec4 v1, vec4 v2)
+inline vec4 lerp(float t, vec4 v1, vec4 v2)
 {
     return v1 * (1 - t) + v2 * t;
 }
 
 /** clamp a vector to the interval [0,1]. */
-inline const vec4 clamp_to_unit_interval(vec4 v)
+inline vec4 clamp_to_unit_interval(vec4 v)
 {
 #if defined(ML_USE_SIMD)
     return {_mm_min_ps(_mm_max_ps(v.data, _mm_set_ps1(0.0f)), _mm_set_ps1(1.0f))};

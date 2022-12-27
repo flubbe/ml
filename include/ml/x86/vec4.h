@@ -128,7 +128,7 @@ struct vec4
         return x * v.x + y * v.y + z * v.z + w * v.w;
     }
 
-    const vec4 scale(float s) const
+    vec4 scale(float s) const
     {
         return {x * s, y * s, z * s, w * s};
     }
@@ -138,45 +138,45 @@ struct vec4
         /* one_over_length is safe to call on zero vectors - no check needed. */
         *this = *this * one_over_length();
     }
-    const vec4 normalized() const
+    vec4 normalized() const
     {
         return *this * one_over_length();
     }
 
     /* operators. */
-    const vec4 operator+(const vec4& v) const
+    vec4 operator+(const vec4& v) const
     {
         return {x + v.x, y + v.y, z + v.z, w + v.w};
     }
-    const vec4 operator+(float s) const
+    vec4 operator+(float s) const
     {
         return {x + s, y + s, z + s, w + s};
     }
-    const vec4 operator-(const vec4& v) const
+    vec4 operator-(const vec4& v) const
     {
         return {x - v.x, y - v.y, z - v.z, w - v.w};
     }
-    const vec4 operator-(float s) const
+    vec4 operator-(float s) const
     {
         return {x - s, y - s, z - s, w - s};
     }
-    const vec4 operator-() const
+    vec4 operator-() const
     {
         return {-x, -y, -z, -w};
     }
-    const vec4 operator*(float s) const
+    vec4 operator*(float s) const
     {
         return scale(s);
     }
-    const vec4 operator*(const vec4& v) const
+    vec4 operator*(const vec4& v) const
     {
         return {x * v.x, y * v.y, z * v.z, w * v.w};
     }
-    const vec4 operator/(float s) const
+    vec4 operator/(float s) const
     {
         return scale(1.0f / s);
     }
-    const vec4 operator/(const vec4& v) const
+    vec4 operator/(const vec4& v) const
     {
         return {x / v.x, y / v.y, z / v.z, w / v.w};
     }
@@ -244,25 +244,25 @@ struct vec4
 #    undef ML_SWIZZLE_VEC4_TYPE
 #    undef ML_SWIZZLE_COMPONENTS
 #else /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
-    const vec2 xy() const
+    vec2 xy() const
     {
         return {x, y};
     }
 
-    const vec3 xyz() const
+    vec3 xyz() const
     {
         return {x, y, z};
     }
 #endif
 
     /* special vectors. */
-    static const vec4 zero()
+    static vec4 zero()
     {
         // note that by default w is initialized to 1, so we initialize the vector explicitely.
         return {0, 0, 0, 0};
     }
 
-    static const vec4 one()
+    static vec4 one()
     {
         return {1, 1, 1, 1};
     }
