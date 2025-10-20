@@ -24,6 +24,11 @@
 
 #pragma once
 
+/* SIMD support is only available for x86 for now. */
+#if !defined(__x86_64__) && !defined(_M_X64)
+#   define ML_NO_SIMD
+#endif
+
 #ifdef ML_NO_DEPS
 
 #    define ML_NO_CPP
