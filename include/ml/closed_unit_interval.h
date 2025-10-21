@@ -20,7 +20,7 @@ template<typename T>
 struct closed_unit_interval
 {
     /* only supports POD types */
-    static_assert(std::is_pod<T>::value, "closed_unit_interval<T> only supports POD types");
+    static_assert(std::is_standard_layout<T>::value && std::is_trivial<T>::value, "closed_unit_interval<T> only supports POD types");
 
     /** Representation for one. */
     static const T one{std::numeric_limits<T>::max()};
