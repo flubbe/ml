@@ -21,8 +21,6 @@ BOOST_AUTO_TEST_SUITE(cnl_support)
 
 BOOST_AUTO_TEST_CASE(rounding)
 {
-    fixed_t fp1{0}, fp2{-1}, fp3{-2.9}, fp4{-10.1}, fp5{-14.5}, fp6{3.5}, fp7{0.5}, fp8{0.7}, fp9{10}, fp10{23.4};
-
     BOOST_CHECK(round(fixed_t{0}) == std::round(0));
     BOOST_CHECK(round(fixed_t{-1}) == std::round(-1));
     BOOST_CHECK(round(fixed_t{-2.9}) == std::round(-2.9));
@@ -60,8 +58,6 @@ BOOST_AUTO_TEST_CASE(randomized_rounding)
 
 BOOST_AUTO_TEST_CASE(to_float, *boost::unit_test::tolerance(TOLERANCE))
 {
-    fixed_t fp1{0}, fp2{-1}, fp3{-2.9}, fp4{-10.1}, fp5{-14.5}, fp6{3.5}, fp7{0.5}, fp8{0.7}, fp9{10}, fp10{23.4};
-
     BOOST_TEST(ml::to_float(fixed_t{0}) == 0.0f);
     BOOST_TEST(ml::to_float(fixed_t{-1}) == -1.0f);
     BOOST_TEST(ml::to_float(fixed_t{-2.9}) == -2.9f);
@@ -82,8 +78,6 @@ BOOST_AUTO_TEST_CASE(to_float, *boost::unit_test::tolerance(TOLERANCE))
 
 BOOST_AUTO_TEST_CASE(integral_part)
 {
-    fixed_t fp1{0}, fp2{-1}, fp3{-2.9}, fp4{-10.1}, fp5{-14.5}, fp6{3.5}, fp7{0.5}, fp8{0.7}, fp9{10}, fp10{23.4};
-
     BOOST_TEST(ml::integral_part(fixed_t{0}) == 0);
     BOOST_TEST(ml::integral_part(fixed_t{-1}) == -1);
     BOOST_TEST(ml::integral_part(fixed_t{-2.9}) == -2);

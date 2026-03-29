@@ -1,21 +1,22 @@
-
 # Simple header-only mathematics library
 
-[![Build Status](https://travis-ci.com/flubbe/ml.svg?branch=main)](https://travis-ci.com/flubbe/ml)
+[![License](https://img.shields.io/github/license/flubbe/ml)](https://github.com/flubbe/ml/blob/main/LICENSE.txt)
+[![Build Status](https://github.com/flubbe/ml/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/flubbe/ml/actions)
 
 ## Description
 
 A collection of mathematical classes and functions I use. The library is mainly a learning tool.
 
 The library contains:
- - 2d/3d/4d float vector classes and a 4d float matrix class: `vec2, vec3, vec4, mat4x4`
- - templated 2d vector class `tvec2<T>`
- - planes and lines: `plane`, `line<T>` (with specializations for 3d and 4d lines `line3, line4`) and `create_line` for obtaining a line through two points 
- - special matrices, e.g. for projections, translation, scaling and rotation: namespace `matrices`
- - convenient names for fixed-point types from the compositional numeric library (`fixed_t` for 15.16 signed fixed-point, `fixed_24_8_t` for signed 23.8 fixed-point and `fixed_28_4_t` for signed 27.4 fixed-point) and some utility functions (`integral_part`, `round`, `to_float` and `truncate_unchecked`)
- - fixed-point 2d vector class using the compositional numeric library: `vec2_fixed`
- - a fixed-point representation of the (closed) unit interval [0,1]: `fixed_32_t`
- - linear interpolation for general types (`lerp`), clamp vector components to unit interval (`clamp_to_unit_interval`), number truncation (`truncate_unchecked`, only for positive numbers).
+
+- 2d/3d/4d float vector classes and a 4d float matrix class: `vec2, vec3, vec4, mat4x4`
+- templated 2d vector class `tvec2<T>`
+- planes and lines: `plane`, `line<T>` (with specializations for 3d and 4d lines `line3, line4`) and `create_line` for obtaining a line through two points
+- special matrices, e.g. for projections, translation, scaling and rotation: namespace `matrices`
+- convenient names for fixed-point types from the compositional numeric library (`fixed_t` for 15.16 signed fixed-point, `fixed_24_8_t` for signed 23.8 fixed-point and `fixed_28_4_t` for signed 27.4 fixed-point) and some utility functions (`integral_part`, `round`, `to_float` and `truncate_unchecked`)
+- fixed-point 2d vector class using the compositional numeric library: `vec2_fixed`
+- a fixed-point representation of the (closed) unit interval [0,1]: `fixed_32_t`
+- linear interpolation for general types (`lerp`), clamp vector components to unit interval (`clamp_to_unit_interval`), number truncation (`truncate_unchecked`, only for positive numbers).
 
 ## Dependencies
 
@@ -26,7 +27,9 @@ The tests rely on the [Boost.Test](https://www.boost.org) framework.
 
 ## Setup
 
-As a header-only library, just include `all.h` (note that CNL 1.1.2 needs a C++17 compatible tool chain, and the master branch needs a C++20 compatible tool chain).
+The project uses C++20.
+
+As a header-only library, just include `all.h`.
 
 By default, SSE versions of the functions and classes are used. Set `ML_NO_SIMD` to use non-SSE versions. Set `ML_INCLUDE_SIMD` to include both SSE and non-SSE versions of `vec4` and `mat4x4` (the SSE versions are found in the namespace `simd`). Currently the library uses up to SSE 4.1.
 
@@ -35,10 +38,8 @@ defining `ML_NO_SWIZZLE` before including `all.h`.
 
 To build the tests, first run `./scripts/pre-build.sh` from the root folder, which creates the build directory structure and downloads [CNL](https://github.com/johnmcfarlane/cnl), release 1.1.2. Then run `./scripts/build.sh` from the root folder. The tests are written into the `bin`-directory.
 
-Tested on Linux, GCC 10.2 (with C++17 enabled), CMake 3.19.6.
-
 ## References and other libraries
 
- - [Compositional Numeric Library](https://github.com/johnmcfarlane/cnl) 
- - [glm](https://github.com/g-truc/glm)
- - [DirectXMath](https://github.com/microsoft/DirectXMath)
+- [Compositional Numeric Library](https://github.com/johnmcfarlane/cnl)
+- [glm](https://github.com/g-truc/glm)
+- [DirectXMath](https://github.com/microsoft/DirectXMath)

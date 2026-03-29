@@ -1,8 +1,8 @@
 /**
  * ml - simple header-only mathematics library
- * 
+ *
  * general mathematical functions.
- * 
+ *
  * \author Felix Lubbe
  * \copyright Copyright (c) 2021
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
@@ -24,10 +24,10 @@ inline float to_degrees(float radians)
 }
 
 /** generic linear interpolation */
-template<typename T>
-T lerp(float t, const T& a, const T& b)
+template<typename S, typename T>
+T lerp(S t, const T& a, const T& b)
 {
-    return a * (1.0f - t) + b * t;
+    return a * (S{1} - t) + b * t;
 }
 
 /** specialization */

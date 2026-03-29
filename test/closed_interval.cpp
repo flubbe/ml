@@ -14,6 +14,17 @@
 using namespace ml;
 using namespace std;
 
+namespace ml
+{
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const closed_unit_interval<T>& v)
+{
+    return os << "closed_unit_interval{" << +v.data << "}";
+}
+
+}    // namespace ml
+
 BOOST_AUTO_TEST_SUITE(fp_closed_interval)
 
 /*
@@ -24,18 +35,12 @@ const closed_unit_interval<uint32_t> zero{0}, half{0.5}, one{1};
 
 BOOST_AUTO_TEST_CASE(representation)
 {
-    BOOST_CHECK(unwrap(zero) == 0);
-    BOOST_CHECK(unwrap(half) == std::numeric_limits<uint32_t>::max() / 2);
-    BOOST_CHECK(unwrap(one) == std::numeric_limits<uint32_t>::max());
-}
+    BOOST_CHECK_EQUAL(unwrap(zero), 0);
+    BOOST_CHECK_EQUAL(unwrap(half), 2147483648u);
+    BOOST_CHECK_EQUAL(unwrap(one), 4294967295u);
 
-/*
- * arithmetic.
- */
-
-BOOST_AUTO_TEST_CASE(arithmetic)
-{
-    BOOST_CHECK(to_float(half + half) == to_float(one));
+    BOOST_CHECK_EQUAL(ml::closed_unit_interval<uint32_t>(0.0f).data, 0u);
+    BOOST_CHECK_EQUAL(ml::closed_unit_interval<uint32_t>(1.0f).data, ml::closed_unit_interval<uint32_t>::one);
 }
 
 /*
@@ -44,33 +49,33 @@ BOOST_AUTO_TEST_CASE(arithmetic)
 
 BOOST_AUTO_TEST_CASE(comparisons)
 {
-    BOOST_CHECK(zero < half);
-    BOOST_CHECK(zero < one);
-    BOOST_CHECK(half < one);
+    BOOST_CHECK_LT(zero, half);
+    BOOST_CHECK_LT(zero, one);
+    BOOST_CHECK_LT(half, one);
 
     BOOST_CHECK(!(zero > zero));
-    BOOST_CHECK(zero >= zero);
+    BOOST_CHECK_GE(zero, zero);
 
     BOOST_CHECK(!(half > half));
-    BOOST_CHECK(half >= half);
-    BOOST_CHECK(one >= half);
+    BOOST_CHECK_GE(half, half);
+    BOOST_CHECK_GE(one, half);
 
     BOOST_CHECK(!(one > one));
-    BOOST_CHECK(one >= one);
+    BOOST_CHECK_GE(one, one);
 
-    BOOST_CHECK(half > zero);
-    BOOST_CHECK(one > zero);
-    BOOST_CHECK(one > half);
+    BOOST_CHECK_GT(half, zero);
+    BOOST_CHECK_GT(one, zero);
+    BOOST_CHECK_GT(one, half);
 
     BOOST_CHECK(!(zero > zero));
-    BOOST_CHECK(zero >= zero);
+    BOOST_CHECK_GE(zero, zero);
 
     BOOST_CHECK(!(half > half));
-    BOOST_CHECK(half >= half);
-    BOOST_CHECK(one >= half);
+    BOOST_CHECK_GE(half, half);
+    BOOST_CHECK_GE(one, half);
 
     BOOST_CHECK(!(one > one));
-    BOOST_CHECK(one >= one);
+    BOOST_CHECK_GE(one, one);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
