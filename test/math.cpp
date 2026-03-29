@@ -53,8 +53,8 @@ BOOST_AUTO_TEST_CASE(vec2)
     ml::vec2 v1{1, 0}, v2{0, 1};
     BOOST_TEST(v1.area(v2) == 1.0f);
 
-    ml::vec2 v3{std::cos(M_PI / 4), std::sin(M_PI / 4)};
-    ml::vec2 v4{std::cos(M_PI / 4 + M_PI / 2), std::sin(M_PI / 4 + M_PI / 2)};
+    ml::vec2 v3{std::cosf(M_PI / 4), std::sinf(M_PI / 4)};
+    ml::vec2 v4{std::cosf(M_PI / 4 + M_PI / 2), std::sinf(M_PI / 4 + M_PI / 2)};
     BOOST_TEST(v3.area(v4) == 1.0f, boost::test_tools::tolerance(1e-6f));
 }
 
@@ -86,13 +86,20 @@ BOOST_AUTO_TEST_CASE(vec2_fixed)
  * vec4 tests.
  */
 
+#ifdef ML_SIMD_X86
+
 // check that we actually using both non-simd and simd types.
 static_assert(!std::is_same<ml::vec4, ml::simd::vec4>::value);
 static_assert(!std::is_same<ml::mat4x4, ml::simd::mat4x4>::value);
 
+#endif /* ML_SIMD_X86 */
+
 // paranoid checks.
 static_assert(sizeof(ml::vec4) == 4 * sizeof(float));
+
+#ifdef ML_SIMD_X86
 static_assert(sizeof(ml::vec4) == sizeof(__m128));
+#endif /* ML_SIMD_X86 */
 
 BOOST_AUTO_TEST_CASE(vec4_alignment)
 {
@@ -106,6 +113,8 @@ BOOST_AUTO_TEST_CASE(vec4_alignment)
         BOOST_CHECK(is_aligned(&v[i], 16));
     }
 }
+
+#ifdef ML_SIMD_X86
 
 BOOST_AUTO_TEST_CASE(vec4_simd_initialization)
 {
@@ -133,12 +142,16 @@ BOOST_AUTO_TEST_CASE(vec4_simd_comparisons)
     BOOST_TEST((ml::simd::vec4(1, 2, 3, 4) != ml::simd::vec4(1, 2, 3, 0)));
 }
 
+#endif /* ML_SIMD_X86 */
+
 BOOST_AUTO_TEST_CASE(vec4_component_product)
 {
     BOOST_TEST((ml::vec4(1, 2, 3, 4) * ml::vec4(4, 3, 2, 1) == ml::vec4(4, 6, 6, 4)));
     BOOST_TEST((ml::vec4(0, 1, 0, 1) * ml::vec4(-1, 0, -1, 0) == ml::vec4(0, 0, 0, 0)));
     BOOST_TEST((ml::vec4(-2, -3, 3, 2) * ml::vec4(-1, 0, 4, -4) == ml::vec4(2, 0, 12, -8)));
 }
+
+#ifdef ML_SIMD_X86
 
 BOOST_AUTO_TEST_CASE(vec4_simd_component_product)
 {
@@ -147,12 +160,16 @@ BOOST_AUTO_TEST_CASE(vec4_simd_component_product)
     BOOST_TEST((ml::simd::vec4(-2, -3, 3, 2) * ml::simd::vec4(-1, 0, 4, -4) == ml::simd::vec4(2, 0, 12, -8)));
 }
 
+#endif /* ML_SIMD_X86 */
+
 BOOST_AUTO_TEST_CASE(vec4_dot)
 {
     BOOST_TEST(ml::dot(ml::vec4(1, -1, 1, -1), ml::vec4(1, -1, 1, -1)) == 4);
     BOOST_TEST(ml::dot(ml::vec4(1, 2, 3, 4), ml::vec4(4, 3, 2, 1)) == 20);
     BOOST_TEST(ml::dot(ml::vec4(1, 2, 3, 4), ml::vec4(-2, 1, -4, 3)) == 0);
 }
+
+#ifdef ML_SIMD_X86
 
 BOOST_AUTO_TEST_CASE(vec4_simd_dot)
 {
@@ -161,11 +178,15 @@ BOOST_AUTO_TEST_CASE(vec4_simd_dot)
     BOOST_TEST(ml::dot(ml::simd::vec4(1, 2, 3, 4), ml::simd::vec4(-2, 1, -4, 3)) == 0);
 }
 
+#endif /* ML_SIMD_X86 */
+
 BOOST_AUTO_TEST_CASE(vec4_is_zero)
 {
     BOOST_TEST(!ml::vec4(0, 0, 0, 1).is_zero());
     BOOST_TEST(ml::vec4(0, 0, 0, 0).is_zero());
 }
+
+#ifdef ML_SIMD_X86
 
 BOOST_AUTO_TEST_CASE(vec4_simd_is_zero)
 {
@@ -234,6 +255,8 @@ BOOST_AUTO_TEST_CASE(mat4x4_multiplication)
     BOOST_TEST((m1_t.rows[3] == m2_t.rows[3]));
 }
 
+#endif /* ML_SIMD_X86 */
+
 template<typename T>
 T get_random_vec4()
 {
@@ -249,6 +272,8 @@ M get_random_mat()
       get_random_vec4<T>(),
       get_random_vec4<T>()};
 }
+
+#ifdef ML_SIMD_X86
 
 BOOST_AUTO_TEST_CASE(mat4x4_randomized_multiplication)
 {
@@ -270,18 +295,20 @@ BOOST_AUTO_TEST_CASE(mat4x4_randomized_multiplication)
     }
 }
 
+#endif /* ML_SIMD_X86 */
+
 /*
  * math functions.
  */
 
 BOOST_AUTO_TEST_CASE(lerp)
 {
-    BOOST_TEST(ml::lerp<float>(0.3f, 1.f, 2.f) == static_cast<float>(1.f * (1.f - 0.3f) + 2.f * 0.3f), boost::test_tools::tolerance(1e-8f));
-    BOOST_TEST(ml::lerp<double>(0.3, 1, 2) == static_cast<double>(1.0 * (1.0 - 0.3) + 2.0 * 0.3), boost::test_tools::tolerance(1e-8));
+    BOOST_TEST(ml::lerp(0.3f, 1.f, 2.f) == static_cast<float>(1.f * (1.f - 0.3f) + 2.f * 0.3f), boost::test_tools::tolerance(1e-8f));
+    BOOST_TEST(ml::lerp(0.3, 1.0, 2.0) == static_cast<double>(1.0 * (1.0 - 0.3) + 2.0 * 0.3), boost::test_tools::tolerance(1e-8));
 
     ml::vec4 a{1.1, 2.2, 3.3, 4.4};
     ml::vec4 b{-9.3, -10.4, -11.5, -12.6};
-    ml::vec4 l{ml::lerp<ml::vec4>(0.4, a, b)};
+    ml::vec4 l{ml::lerp(0.4f, a, b)};
     BOOST_TEST(l.x == -3.06f, boost::test_tools::tolerance(1e-6f));
     BOOST_TEST(l.y == -2.84f, boost::test_tools::tolerance(1e-6f));
     BOOST_TEST(l.z == -2.62f, boost::test_tools::tolerance(1e-6f));

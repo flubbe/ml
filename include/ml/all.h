@@ -1,22 +1,22 @@
 /**
  * ml - simple header-only mathematics library
- * 
+ *
  * Main header, includes the whole library.
- * 
+ *
  * The following preprocessor definitions can be used to configure the library:
- * 
+ *
  *   ML_NO_DEPS:      don't include any dependencies and support functions.
  *                    equivalent to defining ML_NO_CPP, ML_NO_BOOST and ML_NO_CNL
  *   ML_NO_CPP:       don't include standard C++-headers.
  *   ML_NO_BOOST:     don't include boost headers.
  *   ML_NO_CNL:       don't include CNL support and headers.
- * 
+ *
  * Further:
- * 
+ *
  *   ML_NO_SIMD:      don't use SSE versions of vec4 and mat4x4
  *   ML_INCLUDE_SIMD: provide SSE and non-SSE versions of vec4 and mat4x4
  *   ML_NO_SWIZZLE:   don't define swizzle functions for vector component access.
- * 
+ *
  * \author Felix Lubbe
  * \copyright Copyright (c) 2021
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
@@ -26,7 +26,7 @@
 
 /* SIMD support is only available for x86 for now. */
 #if !defined(__x86_64__) && !defined(_M_X64)
-#   define ML_NO_SIMD
+#    define ML_NO_SIMD
 #endif
 
 #ifdef ML_NO_DEPS
@@ -82,24 +82,35 @@
  */
 #if defined(ML_USE_SIMD) || defined(ML_INCLUDE_SIMD)
 
-#    define ML_USE_SSE41
-#    define ML_USE_SSE3
+#    if defined(__x86_64__) || defined(_M_X64) || defined(__i386) || defined(_M_IX86)
+
+#        define ML_SIMD_X86
+
+#        define ML_USE_SSE41
+#        define ML_USE_SSE3
 
 /* SSE intrinsics */
-#    include <mmintrin.h>  /* MMX */
-#    include <xmmintrin.h> /* SSE */
-#    include <emmintrin.h> /* SSE2 */
-#    include <pmmintrin.h> /* SSE3 */
+#        include <mmintrin.h>  /* MMX */
+#        include <xmmintrin.h> /* SSE */
+#        include <emmintrin.h> /* SSE2 */
+#        include <pmmintrin.h> /* SSE3 */
 /*
 #include <tmmintrin.h> SSSE3
 */
-#    include <smmintrin.h> /* SSE4.1 */
+#        include <smmintrin.h> /* SSE4.1 */
 /*
 #include <nmmintrin.h> SSE4.2
 #include <ammintrin.h> SSE4A
 #include <wmmintrin.h> AES
 #include <immintrin.h> AVX, AVX2, FMA
 */
+
+#    elif defined(__aarch64__) || defined(_M_ARM64) || defined(__arm__) || defined(_M_ARM)
+
+#        define ML_SIMD_NEON
+#        include <arm_neon.h>
+
+#    endif
 
 #endif /* defined(ML_USE_SIMD) || defined(ML_INCLUDE_SIMD) */
 
