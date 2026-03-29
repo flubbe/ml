@@ -50,4 +50,4 @@ jobs:
 
       - name: Run tests
         run: |
-          ctest --test-dir ${{github.workspace}}/build/${{env.BUILD_TYPE}} --output-on-failure
+          ctest --test-dir ${{ github.workspace }}/build --output-on-failure -C ${{ env.BUILD_TYPE }}
