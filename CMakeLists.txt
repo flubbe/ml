@@ -1,5 +1,5 @@
-cmake_policy(VERSION 4.0.0)
-cmake_minimum_required (VERSION 4.0.0)
+cmake_policy(VERSION 3.22.0)
+cmake_minimum_required (VERSION 3.22.0)
 
 project (ml_tests)
 
