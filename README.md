@@ -1,7 +1,7 @@
 # Simple header-only mathematics library
 
 [![License](https://img.shields.io/github/license/flubbe/ml)](https://github.com/flubbe/ml/blob/main/LICENSE.txt)
-[![Build Status](https://github.com/flubbe/ml/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/flubbe/ml/actions)
+[![Build Status](https://github.com/flubbe/ml/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/flubbe/ml/actions)
 
 ## Description
 
