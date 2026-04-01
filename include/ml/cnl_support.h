@@ -11,34 +11,40 @@
 namespace ml
 {
 
-/** helper to obtain the integral part of a fixed-point value. same as floor. */
+/** Obtain the integral part of a fixed-point value, truncated toward zero. */
 template<typename Rep, int Exponent>
-typename std::enable_if<std::is_unsigned<Rep>::value, int>::type
-  integral_part(
-    cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
+auto integral_part(cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
+  -> std::enable_if_t<std::is_unsigned_v<Rep>,
+                      std::decay_t<decltype(cnl::unwrap(value))>>
 {
-    static_assert(8 * sizeof(Rep) > -(Exponent + 1), "integral_part will always return 0");
+    using raw_type = std::decay_t<decltype(cnl::unwrap(value))>;
+
+    static_assert(Exponent <= 0, "integral_part requires a non-positive exponent");
+    static_assert(8 * sizeof(raw_type) > -(Exponent + 1), "integral_part will always return 0");
+
     return cnl::unwrap(value) >> (-Exponent);
 }
 
 template<typename Rep, int Exponent>
-typename std::enable_if<!std::is_unsigned<Rep>::value, int>::type
-  integral_part(
-    cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
+auto integral_part(cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
+  -> std::enable_if_t<!std::is_unsigned_v<Rep>,
+                      std::decay_t<decltype(cnl::unwrap(value))>>
 {
-    static_assert(8 * sizeof(Rep) > -(Exponent + 1), "integral_part will always return 0");
+    using raw_type = std::decay_t<decltype(cnl::unwrap(value))>;
 
-    if(value < 0)
-    {
-        return -(cnl::unwrap(-value) >> (-Exponent));
-    }
+    static_assert(Exponent <= 0, "integral_part is only meaningful here for fixed-point values");
+    static_assert(-Exponent < static_cast<int>(sizeof(raw_type) * 8),
+                  "fractional bit count is too large for the underlying representation");
 
-    return cnl::unwrap(value) >> (-Exponent);
+    const raw_type raw = cnl::unwrap(value);
+    constexpr raw_type scale = raw_type{1} << (-Exponent);
+
+    return raw / scale;
 }
 
 /** helper to round to nearest integer. */
 template<typename Rep, int Exponent>
-typename std::enable_if<std::is_unsigned<Rep>::value, int>::type
+typename std::enable_if<std::is_unsigned<Rep>::value, Rep>::type
   round(
     cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
 {
@@ -46,7 +52,7 @@ typename std::enable_if<std::is_unsigned<Rep>::value, int>::type
 }
 
 template<typename Rep, int Exponent>
-typename std::enable_if<!std::is_unsigned<Rep>::value, int>::type
+typename std::enable_if<!std::is_unsigned<Rep>::value, Rep>::type
   round(
     cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
 {
@@ -98,6 +104,7 @@ struct static_number_traits<
     using rounding_tag = RoundingTag;
     using overflow_tag = OverflowTag;
     using rep = decltype(cnl::unwrap(std::declval<type>()));
+    using wide_rep = cnl::set_digits_t<rep, 2 * cnl::digits<rep>::value>;
 };
 
 } /* namespace ml */
