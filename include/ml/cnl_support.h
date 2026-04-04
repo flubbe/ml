@@ -13,7 +13,7 @@ namespace ml
 
 /** Obtain the integral part of a fixed-point value, truncated toward zero. */
 template<typename Rep, int Exponent>
-auto integral_part(cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
+constexpr auto integral_part(cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
   -> std::enable_if_t<std::is_unsigned_v<Rep>,
                       std::decay_t<decltype(cnl::unwrap(value))>>
 {
@@ -26,7 +26,7 @@ auto integral_part(cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
 }
 
 template<typename Rep, int Exponent>
-auto integral_part(cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
+constexpr auto integral_part(cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
   -> std::enable_if_t<!std::is_unsigned_v<Rep>,
                       std::decay_t<decltype(cnl::unwrap(value))>>
 {
@@ -44,7 +44,7 @@ auto integral_part(cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
 
 /** helper to round to nearest integer. */
 template<typename Rep, int Exponent>
-typename std::enable_if<std::is_unsigned<Rep>::value, Rep>::type
+constexpr typename std::enable_if<std::is_unsigned<Rep>::value, Rep>::type
   round(
     cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
 {
@@ -52,7 +52,7 @@ typename std::enable_if<std::is_unsigned<Rep>::value, Rep>::type
 }
 
 template<typename Rep, int Exponent>
-typename std::enable_if<!std::is_unsigned<Rep>::value, Rep>::type
+constexpr typename std::enable_if<!std::is_unsigned<Rep>::value, Rep>::type
   round(
     cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
 {
@@ -66,7 +66,7 @@ typename std::enable_if<!std::is_unsigned<Rep>::value, Rep>::type
 
 /** helper to convert a fixed-point value to float. */
 template<typename Rep, int Exponent>
-float to_float(
+constexpr float to_float(
   cnl::scaled_integer<Rep, cnl::power<Exponent>> const& value)
 {
     return static_cast<float>(cnl::unwrap(value)) / cnl::unwrap(cnl::scaled_integer<Rep, cnl::power<Exponent>>{1});
@@ -74,7 +74,7 @@ float to_float(
 
 /** truncation for non-negative inputs. */
 template<int Trunc, typename Rep, int Exp>
-cnl::scaled_integer<Rep, cnl::power<Exp>>
+constexpr cnl::scaled_integer<Rep, cnl::power<Exp>>
   truncate_unchecked(cnl::scaled_integer<Rep, cnl::power<Exp>> const& value)
 {
     static_assert(Trunc >= 0);
