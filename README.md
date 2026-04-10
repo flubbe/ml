@@ -36,7 +36,22 @@ By default, SSE versions of the functions and classes are used. Set `ML_NO_SIMD`
 The library defines functions to access vector components similar to swizzle notation. This may increase build times and binary sizes and can be disabled by
 defining `ML_NO_SWIZZLE` before including `all.h`.
 
-To build the tests, first run `./scripts/pre-build.sh` from the root folder, which creates the build directory structure and downloads [CNL](https://github.com/johnmcfarlane/cnl), release 1.1.2. Then run `./scripts/build.sh` from the root folder. The tests are written into the `bin`-directory.
+## Building and running the tests
+
+Configure and build the project:
+
+```bash
+cmake -B build
+cmake --build build
+```
+
+Run the tests:
+
+```bash
+ctest --test-dir build
+```
+
+The tests are written to the `bin/` directory.
 
 ## References and other libraries
 
