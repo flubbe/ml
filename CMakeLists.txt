@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22.0)
 
 cmake_policy(SET CMP0167 NEW)
 
-project(ml_tests)
+project(ml LANGUAGES CXX)
 
 include(CTest)
 
@@ -50,12 +50,6 @@ else()
 endif()
 
 #
-# Boost
-#
-find_package(Boost CONFIG REQUIRED)
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
-
-#
 # CNL
 #
 include(FetchContent)
@@ -88,16 +82,14 @@ target_include_directories(ml INTERFACE
 )
 target_link_libraries(ml INTERFACE cnl)
 
-
-# add support for boost test framework
-add_definitions(-DBOOST_TEST_DYN_LINK)
-link_directories(${Boost_LIBRARY_DIRS})
-
 #
 # build tests
 #
 
 if(BUILD_TESTING)
+    #
+    # Boost
+    #
     find_package(Boost CONFIG REQUIRED COMPONENTS unit_test_framework)
 
     add_executable(test_math test/math.cpp)
