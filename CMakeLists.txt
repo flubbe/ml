@@ -1,8 +1,6 @@
 cmake_policy(VERSION 3.22.0)
 cmake_minimum_required(VERSION 3.22.0)
 
-cmake_policy(SET CMP0167 NEW)
-
 project(ml LANGUAGES CXX)
 
 include(CTest)
