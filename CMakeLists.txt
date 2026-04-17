@@ -3,7 +3,12 @@ cmake_minimum_required(VERSION 3.22.0)
 
 project(ml LANGUAGES CXX)
 
+option(ML_NO_BOOST "Disable Boost-dependent parts of ml" OFF)
+
+add_library(ml INTERFACE)
+
 include(CTest)
+include(FetchContent)
 
 # Set a default build type if none was specified
 set(default_build_type "Release")
@@ -21,7 +26,10 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_compile_options(-Wall -Wextra -Wdouble-promotion -Wchar-subscripts -Wnull-dereference -Wmisleading-indentation -Wuninitialized)
+add_compile_options(
+    -Wall -Wextra -Wdouble-promotion -Wchar-subscripts
+    -Wnull-dereference -Wmisleading-indentation -Wuninitialized
+)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -48,9 +56,22 @@ else()
 endif()
 
 #
+# boost
+#
+if(ML_NO_BOOST)
+    target_compile_definitions(ml INTERFACE ML_NO_BOOST)
+else()
+    find_package(Boost CONFIG REQUIRED)
+    if(TARGET Boost::headers)
+        target_link_libraries(ml INTERFACE Boost::headers)
+    else()
+        message(FATAL_ERROR "Boost was found, but Boost::headers is not available.")
+    endif()
+endif()
+
+#
 # CNL
 #
-include(FetchContent)
 
 FetchContent_Declare(
     cnl_src
@@ -74,7 +95,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 #
 # Targets
 #
-add_library(ml INTERFACE)
 target_include_directories(ml INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
