@@ -50,9 +50,16 @@ inline int truncate_unchecked(float a)
 
 /** dot product between two vectors. */
 template<typename T>
-float dot(const T a, const T b)
+float dot(const T& a, const T& b)
 {
     return a.dot_product(b);
+}
+
+/** hadamard (component-wise) product between vectors. */
+template<typename T>
+T hadamard(const T& a, const T& b)
+{
+    return a.hadamard_product(b);
 }
 
 } /* namespace ml */

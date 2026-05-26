@@ -34,3 +34,5 @@
 # output and build directories
 bin
 build
+
+CMakePresets.json

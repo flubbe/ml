@@ -1,8 +1,8 @@
 /**
  * ml - simple header-only mathematics library
- * 
+ *
  * 2d vector implementation.
- * 
+ *
  * \author Felix Lubbe
  * \copyright Copyright (c) 2021
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
@@ -42,6 +42,7 @@ struct vec2
     vec2(vec2&&) = default;
 
     vec2& operator=(const vec2&) = default;
+    vec2& operator=(vec2&&) = default;
 
     bool is_zero() const
     {
@@ -75,6 +76,10 @@ struct vec2
     float dot_product(const vec2& v) const
     {
         return x * v.x + y * v.y;
+    }
+    vec2 hadamard_product(const vec2& v) const
+    {
+        return {x * v.x, y * v.y};
     }
 
     vec2 scale(float s) const
@@ -116,7 +121,7 @@ struct vec2
     {
         return {x + s, y + s};
     }
-    vec2 operator-(vec2 other) const
+    vec2 operator-(const vec2& other) const
     {
         return {x - other.x, y - other.y};
     }
@@ -134,7 +139,7 @@ struct vec2
     }
     vec2 operator*(const vec2& v) const
     {
-        return {x * v.x, y * v.y};
+        return hadamard_product(v);
     }
     vec2 operator/(float s) const
     {
@@ -179,11 +184,11 @@ struct vec2
     }
 
     /* exact comparisons */
-    bool operator==(vec2 other) const
+    bool operator==(const vec2& other) const
     {
         return x == other.x && y == other.y;
     }
-    bool operator!=(vec2 other) const
+    bool operator!=(const vec2& other) const
     {
         return x != other.x || y != other.y;
     }

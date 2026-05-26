@@ -1,12 +1,14 @@
 /**
  * ml - simple header-only mathematics library
- * 
+ *
  * 4d vector implementation using SSE intrinsics.
- * 
+ *
  * \author Felix Lubbe
  * \copyright Copyright (c) 2021
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
+
+#include <array>
 
 namespace ml
 {
@@ -39,20 +41,18 @@ struct vec4
     {
     }
 
-    vec4(const __m128 in_data)
+    explicit vec4(__m128 in_data)
     : data(in_data)
     {
     }
 
-    vec4(const vec3 v)
+    explicit vec4(const vec3& v)
     {
-        //!!fixme: is there a way to just copy v?
         data = _mm_set_ps(1, v.z, v.y, v.x);
     }
 
-    vec4(const vec3 v, float in_w)
+    vec4(const vec3& v, float in_w)
     {
-        //!!fixme: is there a way to just copy v?
         data = _mm_set_ps(in_w, v.z, v.y, v.x);
     }
 
@@ -66,15 +66,16 @@ struct vec4
         data = _mm_set_ps(in_w, in_z, in_y, in_x);
     }
 
-    vec4(float v[4])
+    explicit vec4(const std::array<float, 4>& v)
     {
-        data = _mm_load_ps(v);
+        data = _mm_loadu_ps(v.data());
     }
 
     vec4(const vec4&) = default;
     vec4(vec4&&) = default;
 
     vec4& operator=(const vec4&) = default;
+    vec4& operator=(vec4&&) = default;
 
     /** divide xyz by w and store 1/w in w */
     void divide_by_w()
@@ -143,6 +144,10 @@ struct vec4
         return _mm_cvtss_f32(sums);
 #endif
     }
+    vec4 hadamard_product(const vec4& v) const
+    {
+        return {_mm_mul_ps(data, v.data)};
+    }
 
     vec4 scale(float s) const
     {
@@ -182,7 +187,7 @@ struct vec4
     }
     vec4 operator*(const vec4& v) const
     {
-        return {_mm_mul_ps(data, v.data)};
+        return hadamard_product(v);
     }
     vec4 operator*(float s) const
     {
@@ -192,7 +197,7 @@ struct vec4
     {
         return scale(1.0f / s);
     }
-    vec4 operator/(const vec4 other) const
+    vec4 operator/(const vec4& other) const
     {
         return {_mm_div_ps(data, other.data)};
     }
@@ -269,12 +274,12 @@ struct vec4
     static vec4 zero()
     {
         // note that by default w is initialized to 1, so we initialize the vector explicitely.
-        return {_mm_set_ps1(0.0)};
+        return {_mm_set_ps1(0.0f)};
     }
 
     static vec4 one()
     {
-        return {_mm_set_ps1(1.0)};
+        return {_mm_set_ps1(1.0f)};
     }
 };
 

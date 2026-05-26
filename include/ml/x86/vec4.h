@@ -1,12 +1,14 @@
 /**
  * ml - simple header-only mathematics library
- * 
+ *
  * 4d vector implementation.
- * 
+ *
  * \author Felix Lubbe
  * \copyright Copyright (c) 2021
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
+
+#include <array>
 
 namespace ml
 {
@@ -29,7 +31,7 @@ struct vec4
             float s, t, p, q;
         };
     };
-    
+
     vec4()
     : x{0}
     , y{0}
@@ -38,7 +40,7 @@ struct vec4
     {
     }
 
-    vec4(const vec3& v)
+    explicit vec4(const vec3& v)
     : x{v.x}
     , y{v.y}
     , z{v.z}
@@ -70,7 +72,7 @@ struct vec4
     {
     }
 
-    vec4(float v[4])
+    explicit vec4(const std::array<float, 4>& v)
     {
         x = v[0];
         y = v[1];
@@ -82,6 +84,7 @@ struct vec4
     vec4(vec4&&) = default;
 
     vec4& operator=(const vec4&) = default;
+    vec4& operator=(vec4&&) = default;
 
     void divide_by_w()
     {
@@ -127,6 +130,10 @@ struct vec4
     {
         return x * v.x + y * v.y + z * v.z + w * v.w;
     }
+    vec4 hadamard_product(const vec4& v) const
+    {
+        return {x * v.x, y * v.y, z * v.z, w * v.w};
+    }
 
     vec4 scale(float s) const
     {
@@ -170,7 +177,7 @@ struct vec4
     }
     vec4 operator*(const vec4& v) const
     {
-        return {x * v.x, y * v.y, z * v.z, w * v.w};
+        return hadamard_product(v);
     }
     vec4 operator/(float s) const
     {
@@ -258,7 +265,7 @@ struct vec4
     /* special vectors. */
     static vec4 zero()
     {
-        // note that by default w is initialized to 1, so we initialize the vector explicitely.
+        // note that by default w is initialized to 1, so we initialize the vector explicitly.
         return {0, 0, 0, 0};
     }
 

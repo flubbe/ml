@@ -1,8 +1,8 @@
 /**
  * ml - simple header-only mathematics library
- * 
+ *
  * special matrices.
- * 
+ *
  * \author Felix Lubbe
  * \copyright Copyright (c) 2021
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
@@ -52,8 +52,18 @@ inline mat4x4 translation(float x, float y, float z)
       {0, 0, 0, 1}};
 }
 
+/** Generate a translation matrix. */
+inline mat4x4 translation(vec3 v)
+{
+    return {
+      {1, 0, 0, v.x},
+      {0, 1, 0, v.y},
+      {0, 0, 1, v.z},
+      {0, 0, 0, 1}};
+}
+
 /** Generate a 4-dimensional diagonal matrix. */
-inline mat4x4 diagonal(float x, float y, float z, float w)
+inline mat4x4 diagonal(float x, float y, float z, float w = 1.f)
 {
     return {
       {x, 0, 0, 0},
@@ -62,13 +72,53 @@ inline mat4x4 diagonal(float x, float y, float z, float w)
       {0, 0, 0, w}};
 }
 
-/** Generate a scaling matrix. */
+/** Generate a 4-dimensional diagonal matrix. */
+inline mat4x4 diagonal(vec4 v)
+{
+    return {
+      {v.x, 0, 0, 0},
+      {0, v.y, 0, 0},
+      {0, 0, v.z, 0},
+      {0, 0, 0, v.w}};
+}
+
+/** Generate a 4-dimensional diagonal matrix. */
+inline mat4x4 diagonal(vec3 v, float w = 1.f)
+{
+    return {
+      {v.x, 0, 0, 0},
+      {0, v.y, 0, 0},
+      {0, 0, v.z, 0},
+      {0, 0, 0, w}};
+}
+
+/** Generate a uniform scaling matrix. */
 inline mat4x4 scaling(float s)
 {
     return {
       {s, 0, 0, 0},
       {0, s, 0, 0},
       {0, 0, s, 0},
+      {0, 0, 0, 1}};
+}
+
+/** Generate a non-uniform scaling matrix. */
+inline mat4x4 scaling(float sx, float sy, float sz)
+{
+    return {
+      {sx, 0, 0, 0},
+      {0, sy, 0, 0},
+      {0, 0, sz, 0},
+      {0, 0, 0, 1}};
+}
+
+/** Generate a non-uniform scaling matrix. */
+inline mat4x4 scaling(vec3 s)
+{
+    return {
+      {s.x, 0, 0, 0},
+      {0, s.y, 0, 0},
+      {0, 0, s.z, 0},
       {0, 0, 0, 1}};
 }
 
@@ -112,7 +162,7 @@ inline mat4x4 rotation_z(float angle)
 }
 
 /** Generate a right-handed rotation matrix w.r.t. the given axis. */
-inline mat4x4 rotation(ml::vec3 axis, float angle)
+inline mat4x4 rotation(vec3 axis, float angle)
 {
     float c = std::cos(angle);
     float s = std::sin(angle);
@@ -143,7 +193,7 @@ inline mat4x4 look_at(const vec3& eye, const vec3& target, const vec3& up)
              {side, 0.0f},
              {new_up, 0.0f},
              {-forward, 0.0f},
-             {ml::vec3::zero(), 1.0f}}
+             {vec3::zero(), 1.0f}}
            * translation(-eye.x, -eye.y, -eye.z);
 }
 

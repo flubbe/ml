@@ -1,8 +1,8 @@
 /**
  * ml - simple header-only mathematics library
- * 
+ *
  * 2d vector template.
- * 
+ *
  * \author Felix Lubbe
  * \copyright Copyright (c) 2021
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
@@ -31,6 +31,7 @@ struct tvec2
     tvec2(tvec2&&) = default;
 
     tvec2& operator=(const tvec2&) = default;
+    tvec2& operator=(tvec2&&) = default;
 
     /* operators. */
     tvec2 operator+(const tvec2& v) const
@@ -93,7 +94,7 @@ struct tvec2
 template<typename T>
 inline tvec2<T> to_tvec2(const vec2& v)
 {
-    return { static_cast<T>(v.x), static_cast<T>(v.y) };
+    return {static_cast<T>(v.x), static_cast<T>(v.y)};
 }
 
 } /* namespace ml */

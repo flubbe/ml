@@ -1,8 +1,8 @@
 /**
  * ml - simple header-only mathematics library
- * 
+ *
  * 3d vector implementation.
- * 
+ *
  * \author Felix Lubbe
  * \copyright Copyright (c) 2021
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
@@ -81,6 +81,10 @@ struct vec3
     vec3 cross_product(const vec3& v) const
     {
         return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x};
+    }
+    vec3 hadamard_product(const vec3& v) const
+    {
+        return {x * v.x, y * v.y, z * v.z};
     }
 
     vec3 scale(float s) const
