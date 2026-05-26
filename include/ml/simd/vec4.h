@@ -146,12 +146,12 @@ struct vec4
     }
     vec4 hadamard_product(const vec4& v) const
     {
-        return {_mm_mul_ps(data, v.data)};
+        return vec4{_mm_mul_ps(data, v.data)};
     }
 
     vec4 scale(float s) const
     {
-        return {_mm_mul_ps(data, _mm_set1_ps(s))};
+        return vec4{_mm_mul_ps(data, _mm_set1_ps(s))};
     }
 
     void normalize()
@@ -167,23 +167,23 @@ struct vec4
     /* operators. */
     vec4 operator+(const vec4& v) const
     {
-        return {_mm_add_ps(data, v.data)};
+        return vec4{_mm_add_ps(data, v.data)};
     }
     vec4 operator+(float s) const
     {
-        return {_mm_add_ps(data, _mm_set1_ps(s))};
+        return vec4{_mm_add_ps(data, _mm_set1_ps(s))};
     }
     vec4 operator-(const vec4& v) const
     {
-        return {_mm_sub_ps(data, v.data)};
+        return vec4{_mm_sub_ps(data, v.data)};
     }
     vec4 operator-(float s) const
     {
-        return {_mm_sub_ps(data, _mm_set1_ps(s))};
+        return vec4{_mm_sub_ps(data, _mm_set1_ps(s))};
     }
     vec4 operator-() const
     {
-        return {_mm_sub_ps(_mm_set1_ps(0.0f), data)};
+        return vec4{_mm_sub_ps(_mm_set1_ps(0.0f), data)};
     }
     vec4 operator*(const vec4& v) const
     {
@@ -199,7 +199,7 @@ struct vec4
     }
     vec4 operator/(const vec4& other) const
     {
-        return {_mm_div_ps(data, other.data)};
+        return vec4{_mm_div_ps(data, other.data)};
     }
 
     vec4& operator+=(const vec4& v)
@@ -274,12 +274,12 @@ struct vec4
     static vec4 zero()
     {
         // note that by default w is initialized to 1, so we initialize the vector explicitely.
-        return {_mm_set_ps1(0.0f)};
+        return vec4{_mm_set_ps1(0.0f)};
     }
 
     static vec4 one()
     {
-        return {_mm_set_ps1(1.0f)};
+        return vec4{_mm_set_ps1(1.0f)};
     }
 };
 
