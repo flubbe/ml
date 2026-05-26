@@ -36,3 +36,4 @@ bin
 build
 
 CMakePresets.json
+out

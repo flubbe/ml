@@ -21,7 +21,7 @@ inline vec4 lerp(float t, vec4 v1, vec4 v2)
 inline vec4 clamp_to_unit_interval(vec4 v)
 {
 #if defined(ML_USE_SIMD)
-    return {_mm_min_ps(_mm_max_ps(v.data, _mm_set_ps1(0.0f)), _mm_set_ps1(1.0f))};
+    return vec4{_mm_min_ps(_mm_max_ps(v.data, _mm_set_ps1(0.0f)), _mm_set_ps1(1.0f))};
 #elif !defined(ML_NO_BOOST)
     return {
       boost::algorithm::clamp(v.x, 0, 1),

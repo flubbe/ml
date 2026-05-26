@@ -72,7 +72,7 @@ struct vec4
     {
     }
 
-    explicit vec4(const std::array<float, 4>& v)
+    explicit vec4(const float (&v)[4])
     {
         x = v[0];
         y = v[1];

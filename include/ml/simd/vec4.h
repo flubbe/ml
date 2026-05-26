@@ -66,9 +66,9 @@ struct vec4
         data = _mm_set_ps(in_w, in_z, in_y, in_x);
     }
 
-    explicit vec4(const std::array<float, 4>& v)
+    explicit vec4(const float (&v)[4])
     {
-        data = _mm_loadu_ps(v.data());
+        data = _mm_loadu_ps(v);
     }
 
     vec4(const vec4&) = default;
