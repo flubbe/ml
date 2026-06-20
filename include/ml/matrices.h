@@ -38,7 +38,7 @@ inline mat4x4 orthographic_projection(float left, float right, float bottom, flo
     return {
       {2 * one_over_width, 0, 0, -(right + left) * one_over_width},
       {0, 2 * one_over_height, 0, -(top + bottom) * one_over_height},
-      {0, 0, 2 * one_over_depth, -(far + near) * one_over_depth},
+      {0, 0, -2 * one_over_depth, -(far + near) * one_over_depth},
       {0, 0, 0, 1}};
 }
 
