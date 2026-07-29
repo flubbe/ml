@@ -177,7 +177,7 @@ struct mat4x4
     }
 };
 
-mat4x4 operator*(float s, const mat4x4& m)
+inline mat4x4 operator*(float s, const mat4x4& m)
 {
     return m * s;
 }
