@@ -334,12 +334,11 @@ private:
         det = _mm_add_ps(_mm_shuffle_ps(det, det, 0x4E), det);
         det = _mm_add_ss(_mm_shuffle_ps(det, det, 0xB1), det);
 
-        // Negated to account for the initial matrix transpose and cofactor signs
-        float d = -_mm_cvtss_f32(det);
-
+        float d = _mm_cvtss_f32(det);
         if(determinant != nullptr)
         {
-            *determinant = d;
+            // Negated to account for the initial matrix transpose and cofactor signs
+            *determinant = -d;
         }
 
         const bool invertible = std::abs(d) >= epsilon;
@@ -350,7 +349,6 @@ private:
 
         if(out != nullptr)
         {
-            // Re-order permuted rows and transpose back to final matrix layout
             row0 = cofactor0;
             row1 = cofactor3;
             row2 = cofactor2;
