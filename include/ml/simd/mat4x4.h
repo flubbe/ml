@@ -145,7 +145,19 @@ struct mat4x4
     }
 
     /* assignments */
-    mat4x4& operator*=(const mat4x4 m)
+    mat4x4& operator+=(const mat4x4& m)
+    {
+        *this = *this + m;
+        return *this;
+    }
+
+    mat4x4& operator-=(const mat4x4& m)
+    {
+        *this = *this - m;
+        return *this;
+    }
+
+    mat4x4& operator*=(const mat4x4& m)
     {
         *this = *this * m;
         return *this;
