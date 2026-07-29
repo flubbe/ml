@@ -348,14 +348,18 @@ private:
 
         if(out != nullptr)
         {
-            // Re-transpose cofactors into correct output row order
-            _MM_TRANSPOSE4_PS(cofactor0, cofactor1, cofactor2, cofactor3);
+            row0 = cofactor0;
+            row1 = cofactor3;
+            row2 = cofactor2;
+            row3 = cofactor1;
+
+            _MM_TRANSPOSE4_PS(row0, row1, row2, row3);
 
             __m128 invDet = _mm_set1_ps(1.0f / d);
-            out->rows[0].data = _mm_mul_ps(cofactor0, invDet);
-            out->rows[1].data = _mm_mul_ps(cofactor1, invDet);
-            out->rows[2].data = _mm_mul_ps(cofactor2, invDet);
-            out->rows[3].data = _mm_mul_ps(cofactor3, invDet);
+            out->rows[0].data = _mm_mul_ps(row0, invDet);
+            out->rows[1].data = _mm_mul_ps(row1, invDet);
+            out->rows[2].data = _mm_mul_ps(row2, invDet);
+            out->rows[3].data = _mm_mul_ps(row3, invDet);
         }
 
         return true;
