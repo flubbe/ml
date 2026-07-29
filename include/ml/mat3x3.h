@@ -240,7 +240,7 @@ struct mat3x3
     }
 };
 
-mat3x3 operator*(float s, const mat3x3& m)
+inline mat3x3 operator*(float s, const mat3x3& m)
 {
     return m * s;
 }

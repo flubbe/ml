@@ -98,7 +98,7 @@ tvec2<T> operator*(float s, const tvec2<T>& v)
 
 /** conversion from vec2. */
 template<typename T>
-inline tvec2<T> to_tvec2(const vec2& v)
+tvec2<T> to_tvec2(const vec2& v)
 {
     return {static_cast<T>(v.x), static_cast<T>(v.y)};
 }

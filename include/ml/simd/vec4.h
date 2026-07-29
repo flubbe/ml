@@ -281,7 +281,7 @@ struct vec4
     }
 };
 
-vec4 operator*(float s, const vec4& v)
+inline vec4 operator*(float s, const vec4& v)
 {
     return v * s;
 }
