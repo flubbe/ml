@@ -198,7 +198,7 @@ struct mat3x3
     std::optional<mat3x3> inverse(
       float epsilon = ml::epsilon) const
     {
-        mat3x3 result(*this);
+        mat3x3 result{*this};
 
         if(!result.invert(epsilon))
         {

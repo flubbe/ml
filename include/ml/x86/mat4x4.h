@@ -143,6 +143,97 @@ struct mat4x4
         return m;
     }
 
+    float determinant() const
+    {
+        const float m00 = rows[0].x, m01 = rows[0].y, m02 = rows[0].z, m03 = rows[0].w;
+        const float m10 = rows[1].x, m11 = rows[1].y, m12 = rows[1].z, m13 = rows[1].w;
+        const float m20 = rows[2].x, m21 = rows[2].y, m22 = rows[2].z, m23 = rows[2].w;
+        const float m30 = rows[3].x, m31 = rows[3].y, m32 = rows[3].z, m33 = rows[3].w;
+
+        const float s0 = m00 * m11 - m10 * m01;
+        const float s1 = m00 * m12 - m10 * m02;
+        const float s2 = m00 * m13 - m10 * m03;
+        const float s3 = m01 * m12 - m11 * m02;
+        const float s4 = m01 * m13 - m11 * m03;
+        const float s5 = m02 * m13 - m12 * m03;
+
+        const float c5 = m22 * m33 - m32 * m23;
+        const float c4 = m21 * m33 - m31 * m23;
+        const float c3 = m21 * m32 - m31 * m22;
+        const float c2 = m20 * m33 - m30 * m23;
+        const float c1 = m20 * m32 - m30 * m22;
+        const float c0 = m20 * m31 - m30 * m21;
+
+        return s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0;
+    }
+
+    bool invert(
+      float epsilon = ml::epsilon)
+    {
+        const float m00 = rows[0].x, m01 = rows[0].y, m02 = rows[0].z, m03 = rows[0].w;
+        const float m10 = rows[1].x, m11 = rows[1].y, m12 = rows[1].z, m13 = rows[1].w;
+        const float m20 = rows[2].x, m21 = rows[2].y, m22 = rows[2].z, m23 = rows[2].w;
+        const float m30 = rows[3].x, m31 = rows[3].y, m32 = rows[3].z, m33 = rows[3].w;
+
+        const float s0 = m00 * m11 - m10 * m01;
+        const float s1 = m00 * m12 - m10 * m02;
+        const float s2 = m00 * m13 - m10 * m03;
+        const float s3 = m01 * m12 - m11 * m02;
+        const float s4 = m01 * m13 - m11 * m03;
+        const float s5 = m02 * m13 - m12 * m03;
+
+        const float c5 = m22 * m33 - m32 * m23;
+        const float c4 = m21 * m33 - m31 * m23;
+        const float c3 = m21 * m32 - m31 * m22;
+        const float c2 = m20 * m33 - m30 * m23;
+        const float c1 = m20 * m32 - m30 * m22;
+        const float c0 = m20 * m31 - m30 * m21;
+
+        const float det =
+          s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0;
+
+        if(std::abs(det) < epsilon)
+        {
+            return false;
+        }
+
+        const float inv_det = 1.0f / det;
+
+        rows[0].x = (m11 * c5 - m12 * c4 + m13 * c3) * inv_det;
+        rows[0].y = (-m01 * c5 + m02 * c4 - m03 * c3) * inv_det;
+        rows[0].z = (m31 * s5 - m32 * s4 + m33 * s3) * inv_det;
+        rows[0].w = (-m21 * s5 + m22 * s4 - m23 * s3) * inv_det;
+
+        rows[1].x = (-m10 * c5 + m12 * c2 - m13 * c1) * inv_det;
+        rows[1].y = (m00 * c5 - m02 * c2 + m03 * c1) * inv_det;
+        rows[1].z = (-m30 * s5 + m32 * s2 - m33 * s1) * inv_det;
+        rows[1].w = (m20 * s5 - m22 * s2 + m23 * s1) * inv_det;
+
+        rows[2].x = (m10 * c4 - m11 * c2 + m13 * c0) * inv_det;
+        rows[2].y = (-m00 * c4 + m01 * c2 - m03 * c0) * inv_det;
+        rows[2].z = (m30 * s4 - m31 * s2 + m33 * s0) * inv_det;
+        rows[2].w = (-m20 * s4 + m21 * s2 - m23 * s0) * inv_det;
+
+        rows[3].x = (-m10 * c3 + m11 * c1 - m12 * c0) * inv_det;
+        rows[3].y = (m00 * c3 - m01 * c1 + m02 * c0) * inv_det;
+        rows[3].z = (-m30 * s3 + m31 * s1 - m32 * s0) * inv_det;
+        rows[3].w = (m20 * s3 - m21 * s1 + m22 * s0) * inv_det;
+
+        return true;
+    }
+
+    std::optional<mat4x4> inverse() const
+    {
+        mat4x4 result{*this};
+
+        if(!result.invert())
+        {
+            return std::nullopt;
+        }
+
+        return result;
+    }
+
     /* access. */
     vec4& operator[](int c)
     {

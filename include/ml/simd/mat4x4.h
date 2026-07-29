@@ -8,6 +8,8 @@
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
 
+#include <optional>
+
 namespace ml
 {
 
@@ -183,6 +185,39 @@ struct mat4x4
         return m;
     }
 
+    float determinant() const
+    {
+        float det;
+        inverse(nullptr, &det);
+        return det;
+    }
+
+    bool invert()
+    {
+        mat4x4 inv;
+        float det;
+
+        if(!inverse(&inv, &det))
+        {
+            return false;
+        }
+
+        *this = inv;
+        return true;
+    }
+
+    std::optional<mat4x4> inverse() const
+    {
+        mat4x4 result{*this};
+
+        if(!result.invert())
+        {
+            return std::nullopt;
+        }
+
+        return result;
+    }
+
     /* access. */
     vec4& operator[](int c)
     {
@@ -214,6 +249,109 @@ struct mat4x4
     static mat4x4 zero()
     {
         return mat4x4{vec4::zero(), vec4::zero(), vec4::zero(), vec4::zero()};
+    }
+
+private:
+    /**
+     * Calculate the inverse and determinant of a matrix.
+     * Based on the Intel paper "Streaming SIMD Extensions - Inverse of 4x4 Matrix"
+     */
+    bool inverse(
+      mat4x4* out,
+      float* determinant = nullptr,
+      float epsilon = ml::epsilon) const
+    {
+        __m128 row0 = rows[0].data;
+        __m128 row1 = rows[1].data;
+        __m128 row2 = rows[2].data;
+        __m128 row3 = rows[3].data;
+
+        __m128 cofactor0, cofactor1, cofactor2, cofactor3;
+        __m128 det, tmp1;
+
+        _MM_TRANSPOSE4_PS(row0, row1, row2, row3);
+
+        //-----------------------------------------------
+        tmp1 = _mm_mul_ps(row2, row3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0xB1);
+        cofactor0 = _mm_mul_ps(row1, tmp1);
+        cofactor1 = _mm_mul_ps(row0, tmp1);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0x4E);
+        cofactor0 = _mm_sub_ps(_mm_mul_ps(row1, tmp1), cofactor0);
+        cofactor1 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), cofactor1);
+        cofactor1 = _mm_shuffle_ps(cofactor1, cofactor1, 0x4E);
+
+        //-----------------------------------------------
+        tmp1 = _mm_mul_ps(row1, row2);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0xB1);
+        cofactor0 = _mm_add_ps(_mm_mul_ps(row3, tmp1), cofactor0);
+        cofactor3 = _mm_mul_ps(row0, tmp1);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0x4E);
+        cofactor0 = _mm_sub_ps(cofactor0, _mm_mul_ps(row3, tmp1));
+        cofactor3 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), cofactor3);
+        cofactor3 = _mm_shuffle_ps(cofactor3, cofactor3, 0x4E);
+
+        //-----------------------------------------------
+        tmp1 = _mm_mul_ps(_mm_shuffle_ps(row1, row1, 0x4E), row3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0xB1);
+        const __m128 row2_shuffled = _mm_shuffle_ps(row2, row2, 0x4E);
+        cofactor0 = _mm_add_ps(_mm_mul_ps(row2_shuffled, tmp1), cofactor0);
+        cofactor2 = _mm_mul_ps(row0, tmp1);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0x4E);
+        cofactor0 = _mm_sub_ps(cofactor0, _mm_mul_ps(row2_shuffled, tmp1));
+        cofactor2 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), cofactor2);
+        cofactor2 = _mm_shuffle_ps(cofactor2, cofactor2, 0x4E);
+
+        //-----------------------------------------------
+        tmp1 = _mm_mul_ps(row0, row1);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0xB1);
+        cofactor2 = _mm_add_ps(_mm_mul_ps(row3, tmp1), cofactor2);
+        cofactor3 = _mm_sub_ps(_mm_mul_ps(row2_shuffled, tmp1), cofactor3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0x4E);
+        cofactor2 = _mm_sub_ps(_mm_mul_ps(row3, tmp1), cofactor2);
+        cofactor3 = _mm_sub_ps(cofactor3, _mm_mul_ps(row2_shuffled, tmp1));
+
+        //-----------------------------------------------
+        tmp1 = _mm_mul_ps(row0, row3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0xB1);
+        cofactor1 = _mm_sub_ps(cofactor1, _mm_mul_ps(row2_shuffled, tmp1));
+        cofactor2 = _mm_add_ps(_mm_mul_ps(row1, tmp1), cofactor2);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0x4E);
+        cofactor1 = _mm_add_ps(_mm_mul_ps(row2_shuffled, tmp1), cofactor1);
+        cofactor2 = _mm_sub_ps(cofactor2, _mm_mul_ps(row1, tmp1));
+
+        //-----------------------------------------------
+        tmp1 = _mm_mul_ps(row0, row2_shuffled);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0xB1);
+        cofactor1 = _mm_add_ps(_mm_mul_ps(row3, tmp1), cofactor1);
+        cofactor3 = _mm_sub_ps(cofactor3, _mm_mul_ps(row1, tmp1));
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0x4E);
+        cofactor1 = _mm_sub_ps(cofactor1, _mm_mul_ps(row3, tmp1));
+        cofactor3 = _mm_add_ps(_mm_mul_ps(row1, tmp1), cofactor3);
+
+        //-----------------------------------------------
+        det = _mm_mul_ps(row0, cofactor0);
+        det = _mm_add_ps(_mm_shuffle_ps(det, det, 0x4E), det);
+        det = _mm_add_ss(_mm_shuffle_ps(det, det, 0xB1), det);
+
+        float d = _mm_cvtss_f32(det);
+        if(determinant != nullptr)
+        {
+            *determinant = d;
+        }
+
+        if(std::abs(d) < epsilon)
+        {
+            return false;
+        }
+
+        __m128 invDet = _mm_set1_ps(1.0f / d);
+        out->rows[0].data = _mm_mul_ps(cofactor0, invDet);
+        out->rows[1].data = _mm_mul_ps(cofactor1, invDet);
+        out->rows[2].data = _mm_mul_ps(cofactor2, invDet);
+        out->rows[3].data = _mm_mul_ps(cofactor3, invDet);
+
+        return true;
     }
 };
 

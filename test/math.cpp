@@ -64,6 +64,48 @@ inline std::ostream& operator<<(std::ostream& os, const std::optional<mat3x3>& m
     return os << "<none>";
 }
 
+inline std::ostream& operator<<(std::ostream& os, const mat4x4& m)
+{
+    return os
+           << "[[" << m.rows[0].x << ", " << m.rows[0].y << ", " << m.rows[0].z << ", " << m.rows[0].w << "], "
+           << "[" << m.rows[1].x << ", " << m.rows[1].y << ", " << m.rows[1].z << ", " << m.rows[1].w << "], "
+           << "[" << m.rows[2].x << ", " << m.rows[2].y << ", " << m.rows[2].z << ", " << m.rows[2].w << "], "
+           << "[" << m.rows[3].x << ", " << m.rows[3].y << ", " << m.rows[3].z << ", " << m.rows[3].w << "]]";
+}
+
+inline std::ostream& operator<<(std::ostream& os, const std::optional<mat4x4>& m)
+{
+    if(m.has_value())
+    {
+        return os << m.value();
+    }
+
+    return os << "<none>";
+}
+
+#ifdef ML_SIMD_X86
+
+inline std::ostream& operator<<(std::ostream& os, const simd::mat4x4& m)
+{
+    return os
+           << "[[" << m.rows[0].x << ", " << m.rows[0].y << ", " << m.rows[0].z << m.rows[0].w << "], "
+           << "[" << m.rows[1].x << ", " << m.rows[1].y << ", " << m.rows[1].z << m.rows[1].w << "], "
+           << "[" << m.rows[2].x << ", " << m.rows[2].y << ", " << m.rows[2].z << m.rows[2].w << "], "
+           << "[" << m.rows[3].x << ", " << m.rows[3].y << ", " << m.rows[3].z << m.rows[3].w << "]]";
+}
+
+inline std::ostream& operator<<(std::ostream& os, const std::optional<simd::mat4x4>& m)
+{
+    if(m.has_value())
+    {
+        return os << m.value();
+    }
+
+    return os << "<none>";
+}
+
+#endif
+
 }    // namespace ml
 
 BOOST_AUTO_TEST_SUITE(math)
@@ -325,11 +367,49 @@ BOOST_AUTO_TEST_CASE(mat3x3_inverse)
     BOOST_CHECK_EQUAL(m.inverse(), m);
 }
 
-#ifdef ML_SIMD_X86
-
 /*
  * mat4x4 tests.
  */
+
+BOOST_AUTO_TEST_CASE(mat4x4_determinant)
+{
+    ml::mat4x4 m = ml::mat4x4::zero();
+    BOOST_CHECK_EQUAL(m.determinant(), 0.f);
+
+    m = ml::mat4x4::one();
+    BOOST_CHECK_EQUAL(m.determinant(), 0.f);
+
+    m = ml::mat4x4::identity();
+    BOOST_CHECK_EQUAL(m.determinant(), 1.f);
+
+    m[1][1] = 2;
+    m[1][2] = 1;
+    m[2][2] = 3;
+    m[2][3] = 1;
+    m[3][3] = 4;
+    BOOST_CHECK_EQUAL(m.determinant(), 24.f);
+}
+
+BOOST_AUTO_TEST_CASE(mat4x4_inverse)
+{
+    BOOST_TEST(!ml::mat4x4::zero().inverse().has_value());
+    BOOST_TEST(!ml::mat4x4::one().inverse().has_value());
+    BOOST_TEST(ml::mat4x4::identity().inverse().has_value());
+
+    BOOST_CHECK_EQUAL(ml::mat4x4::identity().inverse(), ml::mat4x4::identity());
+
+    auto m = ml::mat4x4{
+      {0, 1, 0, 0},
+      {1, 0, 0, 0},
+      {0, 0, 0, 1},
+      {0, 0, 1, 0}};
+    BOOST_CHECK_EQUAL(m.inverse(), m);
+
+    m *= 2.f;
+    BOOST_CHECK_EQUAL(m.inverse(), 0.25f * m);
+}
+
+#ifdef ML_SIMD_X86
 
 // compare non-simd and simd vec4
 bool operator==(const ml::vec4& v1, const ml::simd::vec4& v2)
@@ -355,7 +435,7 @@ ml::simd::mat4x4 mat_simd_init(const ml::mat4x4& m)
     return {vec_simd_init(m.rows[0]), vec_simd_init(m.rows[1]), vec_simd_init(m.rows[2]), vec_simd_init(m.rows[3])};
 }
 
-BOOST_AUTO_TEST_CASE(mat4x4_multiplication)
+BOOST_AUTO_TEST_CASE(mat4x4_simd_multiplication)
 {
     ml::mat4x4 m1{
       {1, 2, 3, 4},
@@ -408,7 +488,7 @@ M get_random_mat()
 
 #ifdef ML_SIMD_X86
 
-BOOST_AUTO_TEST_CASE(mat4x4_randomized_multiplication)
+BOOST_AUTO_TEST_CASE(mat4x4_simd_randomized_multiplication)
 {
     // random multiplication tests.
     for(int i = 0; i < 1000; ++i)
@@ -426,6 +506,44 @@ BOOST_AUTO_TEST_CASE(mat4x4_randomized_multiplication)
         BOOST_REQUIRE(res.rows[2] == res_simd.rows[2]);
         BOOST_REQUIRE(res.rows[3] == res_simd.rows[3]);
     }
+}
+
+BOOST_AUTO_TEST_CASE(mat4x4_simd_determinant)
+{
+    ml::simd::mat4x4 m = ml::simd::mat4x4::zero();
+    BOOST_CHECK_EQUAL(m.determinant(), 0.f);
+
+    m = ml::simd::mat4x4::one();
+    BOOST_CHECK_EQUAL(m.determinant(), 0.f);
+
+    m = ml::simd::mat4x4::identity();
+    BOOST_CHECK_EQUAL(m.determinant(), 1.f);
+
+    m[1][1] = 2;
+    m[1][2] = 1;
+    m[2][2] = 3;
+    m[2][3] = 1;
+    m[3][3] = 4;
+    BOOST_CHECK_EQUAL(m.determinant(), 24.f);
+}
+
+BOOST_AUTO_TEST_CASE(mat4x4_simd_inverse)
+{
+    BOOST_TEST(!ml::simd::mat4x4::zero().inverse().has_value());
+    BOOST_TEST(!ml::simd::mat4x4::one().inverse().has_value());
+    BOOST_TEST(ml::simd::mat4x4::identity().inverse().has_value());
+
+    BOOST_CHECK_EQUAL(ml::simd::mat4x4::identity().inverse(), ml::simd::mat4x4::identity());
+
+    auto m = ml::simd::mat4x4{
+      {0, 1, 0, 0},
+      {1, 0, 0, 0},
+      {0, 0, 0, 1},
+      {0, 0, 1, 0}};
+    BOOST_CHECK_EQUAL(m.inverse(), m);
+
+    m *= 2.f;
+    BOOST_CHECK_EQUAL(m.inverse(), 0.25f * m);
 }
 
 #endif /* ML_SIMD_X86 */
