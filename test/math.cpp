@@ -85,16 +85,19 @@ inline std::ostream& operator<<(std::ostream& os, const std::optional<mat4x4>& m
 
 #ifdef ML_SIMD_X86
 
-inline std::ostream& operator<<(std::ostream& os, const simd::mat4x4& m)
+namespace simd
+{
+
+inline std::ostream& operator<<(std::ostream& os, const mat4x4& m)
 {
     return os
-           << "[[" << m.rows[0].x << ", " << m.rows[0].y << ", " << m.rows[0].z << m.rows[0].w << "], "
-           << "[" << m.rows[1].x << ", " << m.rows[1].y << ", " << m.rows[1].z << m.rows[1].w << "], "
-           << "[" << m.rows[2].x << ", " << m.rows[2].y << ", " << m.rows[2].z << m.rows[2].w << "], "
-           << "[" << m.rows[3].x << ", " << m.rows[3].y << ", " << m.rows[3].z << m.rows[3].w << "]]";
+           << "[[" << m.rows[0].x << ", " << m.rows[0].y << ", " << m.rows[0].z << ", " << m.rows[0].w << "], "
+           << "[" << m.rows[1].x << ", " << m.rows[1].y << ", " << m.rows[1].z << ", " << m.rows[1].w << "], "
+           << "[" << m.rows[2].x << ", " << m.rows[2].y << ", " << m.rows[2].z << ", " << m.rows[2].w << "], "
+           << "[" << m.rows[3].x << ", " << m.rows[3].y << ", " << m.rows[3].z << ", " << m.rows[3].w << "]]";
 }
 
-inline std::ostream& operator<<(std::ostream& os, const std::optional<simd::mat4x4>& m)
+inline std::ostream& operator<<(std::ostream& os, const std::optional<mat4x4>& m)
 {
     if(m.has_value())
     {
@@ -103,6 +106,8 @@ inline std::ostream& operator<<(std::ostream& os, const std::optional<simd::mat4
 
     return os << "<none>";
 }
+
+}    // namespace simd
 
 #endif
 
