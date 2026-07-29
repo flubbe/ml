@@ -340,16 +340,20 @@ private:
             *determinant = d;
         }
 
-        if(std::abs(d) < epsilon)
+        const bool invertible = std::abs(d) >= epsilon;
+        if(!invertible)
         {
             return false;
         }
 
-        __m128 invDet = _mm_set1_ps(1.0f / d);
-        out->rows[0].data = _mm_mul_ps(cofactor0, invDet);
-        out->rows[1].data = _mm_mul_ps(cofactor1, invDet);
-        out->rows[2].data = _mm_mul_ps(cofactor2, invDet);
-        out->rows[3].data = _mm_mul_ps(cofactor3, invDet);
+        if(out != nullptr)
+        {
+            __m128 invDet = _mm_set1_ps(1.0f / d);
+            out->rows[0].data = _mm_mul_ps(cofactor0, invDet);
+            out->rows[1].data = _mm_mul_ps(cofactor1, invDet);
+            out->rows[2].data = _mm_mul_ps(cofactor2, invDet);
+            out->rows[3].data = _mm_mul_ps(cofactor3, invDet);
+        }
 
         return true;
     }
