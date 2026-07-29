@@ -1,8 +1,8 @@
 /**
  * ml - simple header-only mathematics library
- * 
+ *
  * 4d matrix implementation using SSE intrinsics.
- * 
+ *
  * \author Felix Lubbe
  * \copyright Copyright (c) 2021
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
@@ -216,6 +216,11 @@ struct mat4x4
         return mat4x4{vec4::zero(), vec4::zero(), vec4::zero(), vec4::zero()};
     }
 };
+
+mat4x4 operator*(float s, const mat4x4& m)
+{
+    return m * s;
+}
 
 } /* namespace simd */
 

@@ -90,6 +90,12 @@ struct tvec2
     }
 };
 
+template<typename T>
+tvec2<T> operator*(float s, const tvec2<T>& v)
+{
+    return v * s;
+}
+
 /** conversion from vec2. */
 template<typename T>
 inline tvec2<T> to_tvec2(const vec2& v)

@@ -226,4 +226,9 @@ struct vec3
     }
 };
 
+vec3 operator*(float s, const vec3& v)
+{
+    return v * s;
+}
+
 } /* namespace ml */

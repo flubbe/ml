@@ -1,8 +1,8 @@
 /**
  * ml - simple header-only mathematics library
- * 
+ *
  * 4d matrix implementation.
- * 
+ *
  * \author Felix Lubbe
  * \copyright Copyright (c) 2021
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
@@ -56,16 +56,32 @@ struct mat4x4
     mat4x4 operator*(const mat4x4& m) const
     {
         vec4 v{m.rows[0].x, m.rows[1].x, m.rows[2].x, m.rows[3].x};
-        vec4 col1{dot(rows[0], v), dot(rows[1], v), dot(rows[2], v), dot(rows[3], v)};
+        vec4 col1{
+          rows[0].dot_product(v),
+          rows[1].dot_product(v),
+          rows[2].dot_product(v),
+          rows[3].dot_product(v)};
 
         v = {m.rows[0].y, m.rows[1].y, m.rows[2].y, m.rows[3].y};
-        vec4 col2{dot(rows[0], v), dot(rows[1], v), dot(rows[2], v), dot(rows[3], v)};
+        vec4 col2{
+          rows[0].dot_product(v),
+          rows[1].dot_product(v),
+          rows[2].dot_product(v),
+          rows[3].dot_product(v)};
 
         v = {m.rows[0].z, m.rows[1].z, m.rows[2].z, m.rows[3].z};
-        vec4 col3{dot(rows[0], v), dot(rows[1], v), dot(rows[2], v), dot(rows[3], v)};
+        vec4 col3{
+          rows[0].dot_product(v),
+          rows[1].dot_product(v),
+          rows[2].dot_product(v),
+          rows[3].dot_product(v)};
 
         v = {m.rows[0].w, m.rows[1].w, m.rows[2].w, m.rows[3].w};
-        vec4 col4{dot(rows[0], v), dot(rows[1], v), dot(rows[2], v), dot(rows[3], v)};
+        vec4 col4{
+          rows[0].dot_product(v),
+          rows[1].dot_product(v),
+          rows[2].dot_product(v),
+          rows[3].dot_product(v)};
 
         return mat4x4(col1, col2, col3, col4).transposed();
     }
@@ -152,13 +168,18 @@ struct mat4x4
 
     static mat4x4 one()
     {
-        return mat4x4{vec4::one(), vec4::one(), vec4::one(), vec4::one()};
+        return {vec4::one(), vec4::one(), vec4::one(), vec4::one()};
     }
 
     static mat4x4 zero()
     {
-        return mat4x4{vec4::zero(), vec4::zero(), vec4::zero(), vec4::zero()};
+        return {vec4::zero(), vec4::zero(), vec4::zero(), vec4::zero()};
     }
 };
+
+mat4x4 operator*(float s, const mat4x4& m)
+{
+    return m * s;
+}
 
 } /* namespace ml */

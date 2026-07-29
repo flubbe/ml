@@ -1,8 +1,8 @@
 /**
  * ml - simple header-only mathematics library
- * 
+ *
  * fixed-point 2d vector type using CNL.
- * 
+ *
  * \author Felix Lubbe
  * \copyright Copyright (c) 2021
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
@@ -78,7 +78,7 @@ struct vec2_fixed
     }
 
     /*
-     * operators. 
+     * operators.
      */
 
     vec2_fixed<F> operator+(const vec2_fixed<F>& v) const
@@ -117,7 +117,7 @@ struct vec2_fixed
         return *this;
     }
 
-    /* 
+    /*
      * exact comparisons.
      */
 
@@ -130,8 +130,8 @@ struct vec2_fixed
         return x != v.x || y != v.y;
     }
 
-    /* 
-     * element access. 
+    /*
+     * element access.
      */
 
     type& operator[](int c)
@@ -145,5 +145,11 @@ struct vec2_fixed
         return (&x)[c];
     }
 };
+
+template<int F>
+vec2_fixed<F> operator*(float s, const vec2_fixed<F>& v)
+{
+    return v * s;
+}
 
 } /* namespace ml */

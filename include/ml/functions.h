@@ -55,6 +55,16 @@ float dot(const T& a, const T& b)
     return a.dot_product(b);
 }
 
+/** outer product between two vectors. */
+inline mat4x4 outer_product(const vec4& a, const vec4& b)
+{
+    return {
+      a.x * b,
+      a.y * b,
+      a.z * b,
+      a.w * b};
+}
+
 /** hadamard (component-wise) product between vectors. */
 template<typename T>
 T hadamard(const T& a, const T& b)

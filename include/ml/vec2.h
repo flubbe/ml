@@ -225,4 +225,9 @@ struct vec2
     }
 };
 
+vec2 operator*(float s, const vec2& v)
+{
+    return v * s;
+}
+
 } /* namespace ml */
