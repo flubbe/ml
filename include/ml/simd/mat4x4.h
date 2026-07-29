@@ -277,7 +277,7 @@ private:
         cofactor0 = _mm_mul_ps(row1, tmp1);
         cofactor1 = _mm_mul_ps(row0, tmp1);
         tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0x4E);
-        cofactor0 = _mm_sub_ps(cofactor0, _mm_mul_ps(row1, tmp1));
+        cofactor0 = _mm_sub_ps(_mm_mul_ps(row1, tmp1), cofactor0);
         cofactor1 = _mm_sub_ps(_mm_mul_ps(row0, tmp1), cofactor1);
         cofactor1 = _mm_shuffle_ps(cofactor1, cofactor1, 0x4E);
 
@@ -306,10 +306,10 @@ private:
         tmp1 = _mm_mul_ps(row0, row1);
         tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0xB1);
         cofactor2 = _mm_add_ps(_mm_mul_ps(row3, tmp1), cofactor2);
-        cofactor3 = _mm_sub_ps(cofactor3, _mm_mul_ps(row2_shuffled, tmp1));    // Fixed signs
-        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0x4E);
-        cofactor2 = _mm_sub_ps(cofactor2, _mm_mul_ps(row3, tmp1));
         cofactor3 = _mm_sub_ps(_mm_mul_ps(row2_shuffled, tmp1), cofactor3);
+        tmp1 = _mm_shuffle_ps(tmp1, tmp1, 0x4E);
+        cofactor2 = _mm_sub_ps(_mm_mul_ps(row3, tmp1), cofactor2);
+        cofactor3 = _mm_sub_ps(cofactor3, _mm_mul_ps(row2_shuffled, tmp1));
 
         // Block 5
         tmp1 = _mm_mul_ps(row0, row3);
@@ -348,6 +348,9 @@ private:
 
         if(out != nullptr)
         {
+            // Re-transpose cofactors into correct output row order
+            _MM_TRANSPOSE4_PS(cofactor0, cofactor1, cofactor2, cofactor3);
+
             __m128 invDet = _mm_set1_ps(1.0f / d);
             out->rows[0].data = _mm_mul_ps(cofactor0, invDet);
             out->rows[1].data = _mm_mul_ps(cofactor1, invDet);
