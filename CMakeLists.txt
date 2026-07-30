@@ -79,6 +79,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/johnmcfarlane/cnl.git
     GIT_TAG v1.1.7
     SOURCE_SUBDIR __unused__
+    SYSTEM
 )
 
 FetchContent_MakeAvailable(cnl_src)
