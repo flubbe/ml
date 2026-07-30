@@ -68,7 +68,7 @@ else()
     elseif(TARGET Boost::boost)
         set(BOOST_HEADERS_TARGET Boost::boost)
     else()
-        message(FATAL_ERROR "Boost header target is not available.")
+        message(FATAL_ERROR "Boost target is not available.")
     endif()
 
     set_target_properties(${BOOST_HEADERS_TARGET} PROPERTIES SYSTEM TRUE)
