@@ -62,14 +62,18 @@ if(ML_NO_BOOST)
     target_compile_definitions(ml INTERFACE ML_NO_BOOST)
 else()
     find_package(Boost CONFIG REQUIRED)
+
     if(TARGET Boost::headers)
-        set_target_properties(Boost::headers PROPERTIES SYSTEM TRUE)
+        set(BOOST_HEADERS_TARGET Boost::headers)
     elseif(TARGET Boost::boost)
-        set_target_properties(Boost::boost PROPERTIES SYSTEM TRUE)
+        set(BOOST_HEADERS_TARGET Boost::boost)
     else()
-        message(FATAL_ERROR "Boost target is not available.")
+        message(FATAL_ERROR "Boost header target is not available.")
     endif()
+
+    set_target_properties(${BOOST_HEADERS_TARGET} PROPERTIES SYSTEM TRUE)
 endif()
+
 
 #
 # CNL
@@ -101,7 +105,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 target_include_directories(ml SYSTEM INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
-target_link_libraries(ml INTERFACE cnl)
+target_link_libraries(ml INTERFACE
+    cnl
+    ${BOOST_HEADERS_TARGET}
+)
 
 #
 # build tests
