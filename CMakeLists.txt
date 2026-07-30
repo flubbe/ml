@@ -98,7 +98,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 #
 # Targets
 #
-target_include_directories(ml INTERFACE
+target_include_directories(ml SYSTEM INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 target_link_libraries(ml INTERFACE cnl)
