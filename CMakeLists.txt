@@ -46,11 +46,22 @@ else()
     endif()
 endif()
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+#
+# Architecture specific settings.
+#
+add_library(ml_simd INTERFACE)
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm64|aarch64|ARM64)$")
     message(STATUS "Detected ARM64 architecture")
-elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|AMD64)$")
     message(STATUS "Detected x86_64 architecture")
-    add_compile_options(-msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2 -mfpmath=sse)
+
+    target_compile_options(ml_simd INTERFACE
+        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:
+        -msse4.1
+        -mfpmath=sse
+        >
+    )
 else()
     message(WARNING "Unknown architecture: ${CMAKE_SYSTEM_PROCESSOR}")
 endif()
@@ -106,6 +117,7 @@ target_include_directories(ml SYSTEM INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 target_link_libraries(ml INTERFACE
+    ml_simd
     cnl
     ${BOOST_HEADERS_TARGET}
 )
