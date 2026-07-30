@@ -1,5 +1,5 @@
-cmake_policy(VERSION 3.22.0)
-cmake_minimum_required(VERSION 3.22.0)
+cmake_policy(VERSION 3.25.0)
+cmake_minimum_required(VERSION 3.25.0)
 
 project(ml LANGUAGES CXX)
 
@@ -63,16 +63,17 @@ if(ML_NO_BOOST)
 else()
     find_package(Boost CONFIG REQUIRED)
     if(TARGET Boost::headers)
-        target_link_libraries(ml INTERFACE Boost::headers)
+        set_target_properties(Boost::headers PROPERTIES SYSTEM TRUE)
+    elseif(TARGET Boost::boost)
+        set_target_properties(Boost::boost PROPERTIES SYSTEM TRUE)
     else()
-        message(FATAL_ERROR "Boost was found, but Boost::headers is not available.")
+        message(FATAL_ERROR "Boost target is not available.")
     endif()
 endif()
 
 #
 # CNL
 #
-
 FetchContent_Declare(
     cnl_src
     GIT_REPOSITORY https://github.com/johnmcfarlane/cnl.git
@@ -83,9 +84,10 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(cnl_src)
 
 add_library(cnl INTERFACE)
-target_include_directories(cnl INTERFACE
+target_include_directories(cnl SYSTEM INTERFACE
     ${cnl_src_SOURCE_DIR}/include
 )
+
 #
 # Set up output directories
 #
