@@ -1,5 +1,5 @@
-cmake_policy(VERSION 3.22.0)
-cmake_minimum_required(VERSION 3.22.0)
+cmake_policy(VERSION 3.25.0)
+cmake_minimum_required(VERSION 3.25.0)
 
 project(ml LANGUAGES CXX)
 
@@ -46,11 +46,22 @@ else()
     endif()
 endif()
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+#
+# Architecture specific settings.
+#
+add_library(ml_simd INTERFACE)
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm64|aarch64|ARM64)$")
     message(STATUS "Detected ARM64 architecture")
-elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|AMD64)$")
     message(STATUS "Detected x86_64 architecture")
-    add_compile_options(-msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2 -mfpmath=sse)
+
+    target_compile_options(ml_simd INTERFACE
+        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:
+        -msse4.1
+        -mfpmath=sse
+        >
+    )
 else()
     message(WARNING "Unknown architecture: ${CMAKE_SYSTEM_PROCESSOR}")
 endif()
@@ -62,30 +73,37 @@ if(ML_NO_BOOST)
     target_compile_definitions(ml INTERFACE ML_NO_BOOST)
 else()
     find_package(Boost CONFIG REQUIRED)
+
     if(TARGET Boost::headers)
-        target_link_libraries(ml INTERFACE Boost::headers)
+        set(BOOST_HEADERS_TARGET Boost::headers)
+    elseif(TARGET Boost::boost)
+        set(BOOST_HEADERS_TARGET Boost::boost)
     else()
-        message(FATAL_ERROR "Boost was found, but Boost::headers is not available.")
+        message(FATAL_ERROR "Boost target is not available.")
     endif()
+
+    set_target_properties(${BOOST_HEADERS_TARGET} PROPERTIES SYSTEM TRUE)
 endif()
+
 
 #
 # CNL
 #
-
 FetchContent_Declare(
     cnl_src
     GIT_REPOSITORY https://github.com/johnmcfarlane/cnl.git
     GIT_TAG v1.1.7
     SOURCE_SUBDIR __unused__
+    SYSTEM
 )
 
 FetchContent_MakeAvailable(cnl_src)
 
 add_library(cnl INTERFACE)
-target_include_directories(cnl INTERFACE
+target_include_directories(cnl SYSTEM INTERFACE
     ${cnl_src_SOURCE_DIR}/include
 )
+
 #
 # Set up output directories
 #
@@ -95,10 +113,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 #
 # Targets
 #
-target_include_directories(ml INTERFACE
+target_include_directories(ml SYSTEM INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
-target_link_libraries(ml INTERFACE cnl)
+target_link_libraries(ml INTERFACE
+    ml_simd
+    cnl
+    ${BOOST_HEADERS_TARGET}
+)
 
 #
 # build tests

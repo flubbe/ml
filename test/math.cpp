@@ -35,12 +35,83 @@ void random_initialize_real_std_vector(std::size_t n, std::vector<ml::vec4>& v)
 /*
  * memory alignment.
  */
+
 inline bool
   is_aligned(const void* ptr, std::uintptr_t alignment) noexcept
 {
     auto iptr = reinterpret_cast<std::uintptr_t>(ptr);
     return !(iptr % alignment);
 }
+
+namespace ml
+{
+
+inline std::ostream& operator<<(std::ostream& os, const mat3x3& m)
+{
+    return os
+           << "[[" << m.rows[0].x << ", " << m.rows[0].y << ", " << m.rows[0].z << "], "
+           << "[" << m.rows[1].x << ", " << m.rows[1].y << ", " << m.rows[1].z << "], "
+           << "[" << m.rows[2].x << ", " << m.rows[2].y << ", " << m.rows[2].z << "]]";
+}
+
+inline std::ostream& operator<<(std::ostream& os, const std::optional<mat3x3>& m)
+{
+    if(m.has_value())
+    {
+        return os << m.value();
+    }
+
+    return os << "<none>";
+}
+
+inline std::ostream& operator<<(std::ostream& os, const mat4x4& m)
+{
+    return os
+           << "[[" << m.rows[0].x << ", " << m.rows[0].y << ", " << m.rows[0].z << ", " << m.rows[0].w << "], "
+           << "[" << m.rows[1].x << ", " << m.rows[1].y << ", " << m.rows[1].z << ", " << m.rows[1].w << "], "
+           << "[" << m.rows[2].x << ", " << m.rows[2].y << ", " << m.rows[2].z << ", " << m.rows[2].w << "], "
+           << "[" << m.rows[3].x << ", " << m.rows[3].y << ", " << m.rows[3].z << ", " << m.rows[3].w << "]]";
+}
+
+inline std::ostream& operator<<(std::ostream& os, const std::optional<mat4x4>& m)
+{
+    if(m.has_value())
+    {
+        return os << m.value();
+    }
+
+    return os << "<none>";
+}
+
+#ifdef ML_SIMD_X86
+
+namespace simd
+{
+
+inline std::ostream& operator<<(std::ostream& os, const mat4x4& m)
+{
+    return os
+           << "[[" << m.rows[0].x << ", " << m.rows[0].y << ", " << m.rows[0].z << ", " << m.rows[0].w << "], "
+           << "[" << m.rows[1].x << ", " << m.rows[1].y << ", " << m.rows[1].z << ", " << m.rows[1].w << "], "
+           << "[" << m.rows[2].x << ", " << m.rows[2].y << ", " << m.rows[2].z << ", " << m.rows[2].w << "], "
+           << "[" << m.rows[3].x << ", " << m.rows[3].y << ", " << m.rows[3].z << ", " << m.rows[3].w << "]]";
+}
+
+inline std::ostream& operator<<(std::ostream& os, const std::optional<mat4x4>& m)
+{
+    if(m.has_value())
+    {
+        return os << m.value();
+    }
+
+    return os << "<none>";
+}
+
+}    // namespace simd
+
+#endif
+
+}    // namespace ml
 
 BOOST_AUTO_TEST_SUITE(math)
 
@@ -194,9 +265,156 @@ BOOST_AUTO_TEST_CASE(vec4_simd_is_zero)
     BOOST_TEST(ml::simd::vec4(0, 0, 0, 0).is_zero());
 }
 
+#endif
+
+/*
+ * mat3x3 tests.
+ */
+
+BOOST_AUTO_TEST_CASE(mat3x3_init)
+{
+    auto m = ml::mat3x3::zero();
+    BOOST_TEST((
+      m.rows[0].x == 0 && m.rows[0].y == 0 && m.rows[0].z == 0
+      && m.rows[1].x == 0 && m.rows[1].y == 0 && m.rows[1].z == 0
+      && m.rows[2].x == 0 && m.rows[2].y == 0 && m.rows[2].z == 0));
+
+    m = ml::mat3x3::one();
+    BOOST_TEST((
+      m.rows[0].x == 1 && m.rows[0].y == 1 && m.rows[0].z == 1
+      && m.rows[1].x == 1 && m.rows[1].y == 1 && m.rows[1].z == 1
+      && m.rows[2].x == 1 && m.rows[2].y == 1 && m.rows[2].z == 1));
+
+    m = ml::mat3x3::identity();
+    BOOST_TEST((
+      m.rows[0].x == 1 && m.rows[0].y == 0 && m.rows[0].z == 0
+      && m.rows[1].x == 0 && m.rows[1].y == 1 && m.rows[1].z == 0
+      && m.rows[2].x == 0 && m.rows[2].y == 0 && m.rows[2].z == 1));
+}
+
+BOOST_AUTO_TEST_CASE(mat3x3_transpose)
+{
+    auto m = ml::mat3x3{
+      {1, 2, 3},
+      {4, 5, 6},
+      {7, 8, 9}}
+               .transposed();
+    BOOST_TEST((
+      m.rows[0].x == 1 && m.rows[0].y == 4 && m.rows[0].z == 7
+      && m.rows[1].x == 2 && m.rows[1].y == 5 && m.rows[1].z == 8
+      && m.rows[2].x == 3 && m.rows[2].y == 6 && m.rows[2].z == 9));
+
+    m = ml::mat3x3{
+      {1, 2, 3},
+      {4, 5, 6},
+      {7, 8, 9}};
+    m.transpose();
+    BOOST_TEST((
+      m.rows[0].x == 1 && m.rows[0].y == 4 && m.rows[0].z == 7
+      && m.rows[1].x == 2 && m.rows[1].y == 5 && m.rows[1].z == 8
+      && m.rows[2].x == 3 && m.rows[2].y == 6 && m.rows[2].z == 9));
+}
+
+BOOST_AUTO_TEST_CASE(mat3x3_multiplication)
+{
+    auto m = ml::mat3x3{
+               {1, 2, 3},
+               {4, 5, 6},
+               {7, 8, 9}}
+             * ml::mat3x3::zero();
+    BOOST_TEST((
+      m.rows[0].x == 0 && m.rows[0].y == 0 && m.rows[0].z == 0
+      && m.rows[1].x == 0 && m.rows[1].y == 0 && m.rows[1].z == 0
+      && m.rows[2].x == 0 && m.rows[2].y == 0 && m.rows[2].z == 0));
+
+    m = ml::mat3x3{
+          {1, 2, 3},
+          {4, 5, 6},
+          {7, 8, 9}}
+        * ml::mat3x3::identity();
+    BOOST_TEST((
+      m.rows[0].x == 1 && m.rows[0].y == 2 && m.rows[0].z == 3
+      && m.rows[1].x == 4 && m.rows[1].y == 5 && m.rows[1].z == 6
+      && m.rows[2].x == 7 && m.rows[2].y == 8 && m.rows[2].z == 9));
+}
+
+BOOST_AUTO_TEST_CASE(mat3x3_determinant)
+{
+    BOOST_CHECK_CLOSE(ml::mat3x3::zero().determinant(), 0, 1e-6f);
+    BOOST_CHECK_CLOSE(ml::mat3x3::one().determinant(), 0, 1e-6f);
+    BOOST_CHECK_CLOSE(ml::mat3x3::identity().determinant(), 1, 1e-6f);
+
+    auto m = ml::mat3x3{
+      {0, 1, 0},
+      {1, 0, 0},
+      {0, 0, 1}};
+    BOOST_CHECK_CLOSE(m.determinant(), -1, 1e-6f);
+
+    m = ml::mat3x3{
+      {1, 2, 3},
+      {4, 5, 6},
+      {7, 8, 9}};
+    BOOST_CHECK_CLOSE(m.determinant(), 0, 1e-6f);
+}
+
+BOOST_AUTO_TEST_CASE(mat3x3_inverse)
+{
+    BOOST_TEST(!ml::mat3x3::zero().inverse().has_value());
+    BOOST_TEST(!ml::mat3x3::one().inverse().has_value());
+    BOOST_TEST(ml::mat3x3::identity().inverse().has_value());
+
+    BOOST_CHECK_EQUAL(ml::mat3x3::identity().inverse(), ml::mat3x3::identity());
+
+    auto m = ml::mat3x3{
+      {0, 1, 0},
+      {1, 0, 0},
+      {0, 0, 1}};
+    BOOST_CHECK_EQUAL(m.inverse(), m);
+}
+
 /*
  * mat4x4 tests.
  */
+
+BOOST_AUTO_TEST_CASE(mat4x4_determinant)
+{
+    ml::mat4x4 m = ml::mat4x4::zero();
+    BOOST_CHECK_EQUAL(m.determinant(), 0.f);
+
+    m = ml::mat4x4::one();
+    BOOST_CHECK_EQUAL(m.determinant(), 0.f);
+
+    m = ml::mat4x4::identity();
+    BOOST_CHECK_EQUAL(m.determinant(), 1.f);
+
+    m[1][1] = 2;
+    m[1][2] = 1;
+    m[2][2] = 3;
+    m[2][3] = 1;
+    m[3][3] = 4;
+    BOOST_CHECK_EQUAL(m.determinant(), 24.f);
+}
+
+BOOST_AUTO_TEST_CASE(mat4x4_inverse)
+{
+    BOOST_TEST(!ml::mat4x4::zero().inverse().has_value());
+    BOOST_TEST(!ml::mat4x4::one().inverse().has_value());
+    BOOST_TEST(ml::mat4x4::identity().inverse().has_value());
+
+    BOOST_CHECK_EQUAL(ml::mat4x4::identity().inverse(), ml::mat4x4::identity());
+
+    auto m = ml::mat4x4{
+      {0, 1, 0, 0},
+      {1, 0, 0, 0},
+      {0, 0, 0, 1},
+      {0, 0, 1, 0}};
+    BOOST_CHECK_EQUAL(m.inverse(), m);
+
+    m *= 2.f;
+    BOOST_CHECK_EQUAL(m.inverse(), 0.25f * m);
+}
+
+#ifdef ML_SIMD_X86
 
 // compare non-simd and simd vec4
 bool operator==(const ml::vec4& v1, const ml::simd::vec4& v2)
@@ -222,7 +440,7 @@ ml::simd::mat4x4 mat_simd_init(const ml::mat4x4& m)
     return {vec_simd_init(m.rows[0]), vec_simd_init(m.rows[1]), vec_simd_init(m.rows[2]), vec_simd_init(m.rows[3])};
 }
 
-BOOST_AUTO_TEST_CASE(mat4x4_multiplication)
+BOOST_AUTO_TEST_CASE(mat4x4_simd_multiplication)
 {
     ml::mat4x4 m1{
       {1, 2, 3, 4},
@@ -275,7 +493,7 @@ M get_random_mat()
 
 #ifdef ML_SIMD_X86
 
-BOOST_AUTO_TEST_CASE(mat4x4_randomized_multiplication)
+BOOST_AUTO_TEST_CASE(mat4x4_simd_randomized_multiplication)
 {
     // random multiplication tests.
     for(int i = 0; i < 1000; ++i)
@@ -293,6 +511,44 @@ BOOST_AUTO_TEST_CASE(mat4x4_randomized_multiplication)
         BOOST_REQUIRE(res.rows[2] == res_simd.rows[2]);
         BOOST_REQUIRE(res.rows[3] == res_simd.rows[3]);
     }
+}
+
+BOOST_AUTO_TEST_CASE(mat4x4_simd_determinant)
+{
+    ml::simd::mat4x4 m = ml::simd::mat4x4::zero();
+    BOOST_CHECK_EQUAL(m.determinant(), 0.f);
+
+    m = ml::simd::mat4x4::one();
+    BOOST_CHECK_EQUAL(m.determinant(), 0.f);
+
+    m = ml::simd::mat4x4::identity();
+    BOOST_CHECK_EQUAL(m.determinant(), 1.f);
+
+    m[1][1] = 2;
+    m[1][2] = 1;
+    m[2][2] = 3;
+    m[2][3] = 1;
+    m[3][3] = 4;
+    BOOST_CHECK_EQUAL(m.determinant(), 24.f);
+}
+
+BOOST_AUTO_TEST_CASE(mat4x4_simd_inverse)
+{
+    BOOST_TEST(!ml::simd::mat4x4::zero().inverse().has_value());
+    BOOST_TEST(!ml::simd::mat4x4::one().inverse().has_value());
+    BOOST_TEST(ml::simd::mat4x4::identity().inverse().has_value());
+
+    BOOST_CHECK_EQUAL(ml::simd::mat4x4::identity().inverse(), ml::simd::mat4x4::identity());
+
+    auto m = ml::simd::mat4x4{
+      {0, 1, 0, 0},
+      {1, 0, 0, 0},
+      {0, 0, 0, 1},
+      {0, 0, 1, 0}};
+    BOOST_CHECK_EQUAL(m.inverse(), m);
+
+    m *= 2.f;
+    BOOST_CHECK_EQUAL(m.inverse(), 0.25f * m);
 }
 
 #endif /* ML_SIMD_X86 */

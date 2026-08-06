@@ -124,9 +124,6 @@
 /* fixed point types */
 #include "fixed_point.h"
 
-/* mathematical functions that do not depend on the types included below. */
-#include "functions.h"
-
 /* include forward declarations when using swizzle functions. */
 #if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
 #    include "forward_decl.h"
@@ -139,6 +136,7 @@
 #endif /* ML_NO_CNL */
 #include "vec3.h"
 #include "vec4.h"
+#include "mat3x3.h"
 #include "mat4x4.h"
 
 /* vector swizzle notation implementation */
@@ -154,6 +152,7 @@
 
 /* mathematical functions. */
 #include "functions_vec4.h"
+#include "functions.h"
 
 /* geometric objects and helper functions. */
 #include "geometry.h"

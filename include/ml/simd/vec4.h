@@ -8,8 +8,6 @@
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
 
-#include <array>
-
 namespace ml
 {
 
@@ -282,6 +280,11 @@ struct vec4
         return vec4{_mm_set_ps1(1.0f)};
     }
 };
+
+inline vec4 operator*(float s, const vec4& v)
+{
+    return v * s;
+}
 
 } /* namespace simd */
 
