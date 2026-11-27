@@ -13,21 +13,16 @@
  *
  * Further:
  *
- *   ML_NO_SIMD:      don't use SSE versions of vec4 and mat4x4
- *   ML_INCLUDE_SIMD: provide SSE and non-SSE versions of vec4 and mat4x4
+ *   ML_NO_SIMD:      don't use SIMD versions of vec4 and mat4x4
+ *   ML_INCLUDE_SIMD: provide SIMD and non-SIMD versions of vec4 and mat4x4
  *   ML_NO_SWIZZLE:   don't define swizzle functions for vector component access.
  *
  * \author Felix Lubbe
- * \copyright Copyright (c) 2021
+ * \copyright Copyright (c) 2026
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
 
 #pragma once
-
-/* SIMD support is only available for x86 for now. */
-#if !defined(__x86_64__) && !defined(_M_X64)
-#    define ML_NO_SIMD
-#endif
 
 #ifdef ML_NO_DEPS
 
@@ -84,7 +79,7 @@
 
 #    if defined(__x86_64__) || defined(_M_X64) || defined(__i386) || defined(_M_IX86)
 
-#        define ML_SIMD_X86
+#        define ML_SIMD_SSE
 
 #        define ML_USE_SSE41
 #        define ML_USE_SSE3
