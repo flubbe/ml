@@ -276,7 +276,9 @@ private:
             if(pivot_abs == 0.0f)
             {
                 if(determinant)
+                {
                     *determinant = 0.0f;
+                }
                 return false;
             }
 
@@ -284,7 +286,9 @@ private:
             if(pivot_row != col)
             {
                 for(std::size_t j = 0; j < 8; ++j)
+                {
                     std::swap(augmented[col][j], augmented[pivot_row][j]);
+                }
 
                 det = -det;
             }
@@ -310,7 +314,9 @@ private:
             for(std::size_t row = 0; row < 4; ++row)
             {
                 if(row == col)
+                {
                     continue;
+                }
 
                 const float factor = augmented[row][col];
 
@@ -331,16 +337,22 @@ private:
         }
 
         if(determinant)
+        {
             *determinant = det;
+        }
 
         // Apply the caller's singularity threshold to the determinant.
         if(std::abs(det) <= epsilon)
+        {
             return false;
+        }
 
         if(out)
         {
             for(std::size_t i = 0; i < 4; ++i)
+            {
                 out->rows[i].data = vld1q_f32(augmented[i] + 4);
+            }
         }
 
         return true;
