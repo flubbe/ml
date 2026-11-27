@@ -238,121 +238,130 @@ struct mat4x4
 private:
     /**
      * Calculate the inverse and determinant of a matrix.
-     * Uses Gauss-Jordan elimination with partial pivoting.
+     * Based on the Intel paper "Streaming SIMD Extensions - Inverse of 4x4 Matrix".
+     * Adapted for ARM NEON.
      */
     bool inverse(
       mat4x4* out,
       float* determinant = nullptr,
       float epsilon = ml::epsilon) const
     {
-        // [ A | I ]
-        float augmented[4][8]{};
+        float32x4_t row0 = rows[0].data;
+        float32x4_t row1 = rows[1].data;
+        float32x4_t row2 = rows[2].data;
+        float32x4_t row3 = rows[3].data;
 
-        for(std::size_t i = 0; i < 4; ++i)
+        float32x4_t cofactor0, cofactor1, cofactor2, cofactor3;
+        float32x4_t det, tmp1;
+
+        // Transpose the input matrix.
+        float32x4x2_t t0 = vtrnq_f32(row0, row1);
+        float32x4x2_t t1 = vtrnq_f32(row2, row3);
+
+        row0 = vcombine_f32(vget_low_f32(t0.val[0]), vget_low_f32(t1.val[0]));
+        row1 = vcombine_f32(vget_low_f32(t0.val[1]), vget_low_f32(t1.val[1]));
+        row2 = vcombine_f32(vget_high_f32(t0.val[0]), vget_high_f32(t1.val[0]));
+        row3 = vcombine_f32(vget_high_f32(t0.val[1]), vget_high_f32(t1.val[1]));
+
+        // Block 1
+        tmp1 = vmulq_f32(row2, row3);
+        tmp1 = vrev64q_f32(tmp1);
+        cofactor0 = vmulq_f32(row1, tmp1);
+        cofactor1 = vmulq_f32(row0, tmp1);
+        tmp1 = vextq_f32(tmp1, tmp1, 2);
+        cofactor0 = vsubq_f32(vmulq_f32(row1, tmp1), cofactor0);
+        cofactor1 = vsubq_f32(vmulq_f32(row0, tmp1), cofactor1);
+        cofactor1 = vextq_f32(cofactor1, cofactor1, 2);
+
+        // Block 2
+        tmp1 = vmulq_f32(row1, row2);
+        tmp1 = vrev64q_f32(tmp1);
+        cofactor0 = vaddq_f32(vmulq_f32(row3, tmp1), cofactor0);
+        cofactor3 = vmulq_f32(row0, tmp1);
+        tmp1 = vextq_f32(tmp1, tmp1, 2);
+        cofactor0 = vsubq_f32(cofactor0, vmulq_f32(row3, tmp1));
+        cofactor3 = vsubq_f32(vmulq_f32(row0, tmp1), cofactor3);
+        cofactor3 = vextq_f32(cofactor3, cofactor3, 2);
+
+        // Block 3
+        tmp1 = vmulq_f32(vextq_f32(row1, row1, 2), row3);
+        tmp1 = vrev64q_f32(tmp1);
+        const float32x4_t row2_shuffled = vextq_f32(row2, row2, 2);
+        cofactor0 = vaddq_f32(vmulq_f32(row2_shuffled, tmp1), cofactor0);
+        cofactor2 = vmulq_f32(row0, tmp1);
+        tmp1 = vextq_f32(tmp1, tmp1, 2);
+        cofactor0 = vsubq_f32(cofactor0, vmulq_f32(row2_shuffled, tmp1));
+        cofactor2 = vsubq_f32(vmulq_f32(row0, tmp1), cofactor2);
+        cofactor2 = vextq_f32(cofactor2, cofactor2, 2);
+
+        // Block 4
+        tmp1 = vmulq_f32(row0, row1);
+        tmp1 = vrev64q_f32(tmp1);
+        cofactor2 = vaddq_f32(vmulq_f32(row3, tmp1), cofactor2);
+        cofactor3 = vsubq_f32(vmulq_f32(row2_shuffled, tmp1), cofactor3);
+        tmp1 = vextq_f32(tmp1, tmp1, 2);
+        cofactor2 = vsubq_f32(vmulq_f32(row3, tmp1), cofactor2);
+        cofactor3 = vsubq_f32(cofactor3, vmulq_f32(row2_shuffled, tmp1));
+
+        // Block 5
+        tmp1 = vmulq_f32(row0, row3);
+        tmp1 = vrev64q_f32(tmp1);
+        cofactor1 = vsubq_f32(cofactor1, vmulq_f32(row2_shuffled, tmp1));
+        cofactor2 = vaddq_f32(vmulq_f32(row1, tmp1), cofactor2);
+        tmp1 = vextq_f32(tmp1, tmp1, 2);
+        cofactor1 = vaddq_f32(vmulq_f32(row2_shuffled, tmp1), cofactor1);
+        cofactor2 = vsubq_f32(cofactor2, vmulq_f32(row1, tmp1));
+
+        // Block 6
+        tmp1 = vmulq_f32(row0, row2_shuffled);
+        tmp1 = vrev64q_f32(tmp1);
+        cofactor1 = vaddq_f32(vmulq_f32(row3, tmp1), cofactor1);
+        cofactor3 = vsubq_f32(cofactor3, vmulq_f32(row1, tmp1));
+        tmp1 = vextq_f32(tmp1, tmp1, 2);
+        cofactor1 = vsubq_f32(cofactor1, vmulq_f32(row3, tmp1));
+        cofactor3 = vaddq_f32(vmulq_f32(row1, tmp1), cofactor3);
+
+        // Determinant calculation
+        det = vmulq_f32(row0, cofactor0);
+        det = vaddq_f32(vextq_f32(det, det, 2), det);
+        det = vaddq_f32(vrev64q_f32(det), det);
+
+        const float d = vgetq_lane_f32(det, 0);
+
+        if(determinant != nullptr)
         {
-            vst1q_f32(augmented[i], rows[i].data);
-            augmented[i][4 + i] = 1.0f;
+            // Negated to account for the initial matrix transpose and cofactor signs.
+            *determinant = -d;
         }
 
-        float det = 1.0f;
-
-        for(std::size_t col = 0; col < 4; ++col)
-        {
-            // Find the largest pivot in this column.
-            std::size_t pivot_row = col;
-            float pivot_abs = std::abs(augmented[col][col]);
-
-            for(std::size_t row = col + 1; row < 4; ++row)
-            {
-                const float candidate = std::abs(augmented[row][col]);
-                if(candidate > pivot_abs)
-                {
-                    pivot_abs = candidate;
-                    pivot_row = row;
-                }
-            }
-
-            // A zero pivot means the matrix is singular.
-            if(pivot_abs == 0.0f)
-            {
-                if(determinant)
-                {
-                    *determinant = 0.0f;
-                }
-                return false;
-            }
-
-            // Swap rows if necessary. A row swap changes the determinant sign.
-            if(pivot_row != col)
-            {
-                for(std::size_t j = 0; j < 8; ++j)
-                {
-                    std::swap(augmented[col][j], augmented[pivot_row][j]);
-                }
-
-                det = -det;
-            }
-
-            const float pivot = augmented[col][col];
-            det *= pivot;
-
-            const float inv_pivot = 1.0f / pivot;
-
-            // Normalize the pivot row.
-            float32x4_t lhs = vmulq_n_f32(
-              vld1q_f32(augmented[col]),
-              inv_pivot);
-
-            float32x4_t rhs = vmulq_n_f32(
-              vld1q_f32(augmented[col] + 4),
-              inv_pivot);
-
-            vst1q_f32(augmented[col], lhs);
-            vst1q_f32(augmented[col] + 4, rhs);
-
-            // Eliminate this column from all other rows.
-            for(std::size_t row = 0; row < 4; ++row)
-            {
-                if(row == col)
-                {
-                    continue;
-                }
-
-                const float factor = augmented[row][col];
-
-                lhs = vld1q_f32(augmented[row]);
-                rhs = vld1q_f32(augmented[row] + 4);
-
-                lhs = vsubq_f32(
-                  lhs,
-                  vmulq_n_f32(vld1q_f32(augmented[col]), factor));
-
-                rhs = vsubq_f32(
-                  rhs,
-                  vmulq_n_f32(vld1q_f32(augmented[col] + 4), factor));
-
-                vst1q_f32(augmented[row], lhs);
-                vst1q_f32(augmented[row] + 4, rhs);
-            }
-        }
-
-        if(determinant)
-        {
-            *determinant = det;
-        }
-
-        // Apply the caller's singularity threshold to the determinant.
-        if(std::abs(det) <= epsilon)
+        const bool invertible = std::abs(d) >= epsilon;
+        if(!invertible)
         {
             return false;
         }
 
-        if(out)
+        if(out != nullptr)
         {
-            for(std::size_t i = 0; i < 4; ++i)
-            {
-                out->rows[i].data = vld1q_f32(augmented[i] + 4);
-            }
+            row0 = cofactor0;
+            row1 = cofactor3;
+            row2 = cofactor2;
+            row3 = cofactor1;
+
+            // Transpose the adjugate.
+            t0 = vtrnq_f32(row0, row1);
+            t1 = vtrnq_f32(row2, row3);
+
+            row0 = vcombine_f32(vget_low_f32(t0.val[0]), vget_low_f32(t1.val[0]));
+            row1 = vcombine_f32(vget_low_f32(t0.val[1]), vget_low_f32(t1.val[1]));
+            row2 = vcombine_f32(vget_high_f32(t0.val[0]), vget_high_f32(t1.val[0]));
+            row3 = vcombine_f32(vget_high_f32(t0.val[1]), vget_high_f32(t1.val[1]));
+
+            const float inv_det = 1.0f / d;
+
+            out->rows[0].data = vmulq_n_f32(row0, inv_det);
+            out->rows[1].data = vmulq_n_f32(row1, inv_det);
+            out->rows[2].data = vmulq_n_f32(row2, inv_det);
+            out->rows[3].data = vmulq_n_f32(row3, inv_det);
         }
 
         return true;
