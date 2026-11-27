@@ -15,7 +15,7 @@
 #    if defined(ML_SIMD_NEON)
 #        include "neon/mat4x4.h"
 #    elif defined(ML_SIMD_SSE)
-#        include "sse/mat4.h"
+#        include "sse/mat4x4.h"
 #    else
 #        error Unknown ML_SIMD switch
 #    endif
