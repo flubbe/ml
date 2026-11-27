@@ -12,31 +12,39 @@ env:
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "Linux (x86_64 GCC 14)"
+            os: ubuntu-latest
+            compiler_family: gcc
+            build_type: Release
+
+          - name: "macOS (Apple Silicon AArch64 Clang)"
+            os: macos-latest
+            compiler_family: clang
+            build_type: Release
+
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - name: Ubuntu update
-        run: sudo apt-get update
-        shell: bash
-
-      - name: Install additional packages
-        run: sudo apt-get install libboost-dev libboost-test-dev
-        shell: bash
-
-      - name: Use GCC 14
+      - name: Setup GCC 14 (Linux)
+        if: matrix.compiler_family == 'gcc'
         run: |
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100 --slave /usr/bin/g++ g++ /usr/bin/g++-14
           sudo update-alternatives --set gcc /usr/bin/gcc-14
-
-      - name: GCC version
-        run: |
           gcc --version
           g++ --version
+
+      - name: Verify Apple Clang & Architecture (macOS)
+        if: matrix.compiler_family == 'clang'
+        run: |
+          clang++ --version
+          uname -m
 
       - name: Configure CMake
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
