@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: ["main"]
 
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
-
 jobs:
   build:
     strategy:
@@ -18,11 +14,15 @@ jobs:
         include:
           - name: "Linux (x86_64 GCC 14)"
             os: ubuntu-latest
+            cc: gcc-14
+            cxx: g++-14
             compiler_family: gcc
             build_type: Release
 
           - name: "macOS (Apple Silicon AArch64 Clang)"
             os: macos-latest
+            cc: clang
+            cxx: clang++
             compiler_family: clang
             build_type: Release
 
@@ -32,26 +32,49 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Setup GCC 14 (Linux)
+      - name: Install GCC 14 (Linux)
         if: matrix.compiler_family == 'gcc'
         run: |
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100 --slave /usr/bin/g++ g++ /usr/bin/g++-14
-          sudo update-alternatives --set gcc /usr/bin/gcc-14
-          gcc --version
-          g++ --version
+          sudo apt-get update
+          sudo apt-get install -y gcc-14 g++-14
+          gcc-14 --version
+          g++-14 --version
 
-      - name: Verify Apple Clang & Architecture (macOS)
+      - name: Install dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get install -y libboost-dev libboost-test-dev
+
+      - name: Install dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: brew install boost
+
+      - name: Verify compiler and architecture
+        run: |
+          ${{ matrix.cc }} --version
+          ${{ matrix.cxx }} --version
+
+      - name: Verify Apple Silicon
         if: matrix.compiler_family == 'clang'
         run: |
-          clang++ --version
-          uname -m
+          test "$(uname -m)" = "arm64"
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        run: |
+          cmake --build build \
+            --config ${{ matrix.build_type }} \
+            --parallel
 
       - name: Run tests
         run: |
-          ctest --test-dir ${{ github.workspace }}/build --output-on-failure -C ${{ env.BUILD_TYPE }}
+          ctest --test-dir build \
+            --output-on-failure \
+            -C ${{ matrix.build_type }}
