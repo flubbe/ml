@@ -21,7 +21,7 @@ The library contains:
 ## Dependencies
 
 By default, the main library header `ml/all.h` will also include some C++ math headers, some boost math headers and parts of the compositional numeric library (CNL).
-This behavior can be disabled by defining `ML_NO_DEPS` before including `all.h`, and a fine-grain control is provided by the switches `ML_NO_CPP, ML_NO_BOOST, ML_NO_CNL`.
+This can is controled by the switches `ML_NO_BOOST, ML_NO_CNL`.
 
 The tests rely on the [Boost.Test](https://www.boost.org) framework.
 
@@ -31,7 +31,7 @@ The project uses C++20.
 
 As a header-only library, just include `all.h`.
 
-By default, SSE versions of the functions and classes are used. Set `ML_NO_SIMD` to use non-SSE versions. Set `ML_INCLUDE_SIMD` to include both SSE and non-SSE versions of `vec4` and `mat4x4` (the SSE versions are found in the namespace `simd`). Currently the library uses up to SSE 4.1.
+By default, SSE versions of the functions and classes are used. Set `ML_NO_SIMD` to use non-SSE versions. Currently the library uses up to SSE 4.1.
 
 The library defines functions to access vector components similar to swizzle notation. This may increase build times and binary sizes and can be disabled by
 defining `ML_NO_SWIZZLE` before including `all.h`.

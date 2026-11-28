@@ -4,12 +4,15 @@
  * 2d vector implementation.
  *
  * \author Felix Lubbe
- * \copyright Copyright (c) 2021
+ * \copyright Copyright (c) 2026
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
 
 namespace ml
 {
+
+/* skip vec2 definition when implementing swizzle notation. */
+#ifndef ML_IMPLEMENT_SWIZZLE_FUNCTIONS
 
 /** 2-dimensional vector */
 struct vec2
@@ -56,11 +59,11 @@ struct vec2
 
     float length() const
     {
-#ifdef __GNUC__
+#    ifdef __GNUC__
         return sqrtf(length_squared());
-#else
+#    else
         return std::sqrtf(length_squared());
-#endif
+#    endif
     }
 
     float one_over_length() const
@@ -104,12 +107,12 @@ struct vec2
 
     int area_sign(const vec2& v) const
     {
-#ifdef ML_NO_BOOST
+#    ifdef ML_NO_BOOST
         const auto a = area(other);
         return (a == 0) ? 0 : ((a > 0) ? 1 : -1);
-#else
+#    else
         return boost::math::sign(area(v));
-#endif
+#    endif
     }
 
     /* operators. */
@@ -205,13 +208,13 @@ struct vec2
         return (&x)[i];
     }
 
-#if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
-#    define ML_SWIZZLE_COMPONENTS 2
-#    define ML_SWIZZLE_VEC4_TYPE  vec4
-#    include "swizzle.inl"
-#    undef ML_SWIZZLE_VEC4_TYPE
-#    undef ML_SWIZZLE_COMPONENTS
-#endif /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
+#    if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
+#        define ML_SWIZZLE_COMPONENTS 2
+#        define ML_SWIZZLE_VEC4_TYPE  vec4
+#        include "swizzle.inl"
+#        undef ML_SWIZZLE_VEC4_TYPE
+#        undef ML_SWIZZLE_COMPONENTS
+#    endif /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
 
     /* special vectors. */
     static vec2 zero()
@@ -229,5 +232,16 @@ inline vec2 operator*(float s, const vec2& v)
 {
     return v * s;
 }
+
+#else /* ML_IMPLEMENT_SWIZZLE_FUNCTIONS */
+
+/* vector swizzle notation implementation */
+#    define ML_SWIZZLE_COMPONENTS 2
+#    define ML_SWIZZLE_TYPE       vec2
+#    include "swizzle.inl"
+#    undef ML_SWIZZLE_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+
+#endif /* ML_IMPLEMENT_SWIZZLE_FUNCTIONS */
 
 } /* namespace ml */

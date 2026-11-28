@@ -4,12 +4,15 @@
  * 3d vector implementation.
  *
  * \author Felix Lubbe
- * \copyright Copyright (c) 2021
+ * \copyright Copyright (c) 2026
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
 
 namespace ml
 {
+
+/* skip vec3 definition when implementing swizzle notation. */
+#ifndef ML_IMPLEMENT_SWIZZLE_FUNCTIONS
 
 /** 3-dimensional vector */
 struct vec3
@@ -58,11 +61,11 @@ struct vec3
     float length() const
     {
         // for 3-component vectors: https://fastcpp.blogspot.com/2012/02/calculating-length-of-3d-vector-using.html
-#ifdef __GNUC__
+#    ifdef __GNUC__
         return sqrtf(length_squared());
-#else
+#    else
         return std::sqrtf(length_squared());
-#endif
+#    endif
     }
     float one_over_length() const
     {
@@ -199,19 +202,19 @@ struct vec3
         return (&x)[c];
     }
 
-#if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
-#    define ML_SWIZZLE_COMPONENTS 3
-#    define ML_SWIZZLE_VEC4_TYPE  vec4
-#    include "swizzle.inl"
-#    undef ML_SWIZZLE_VEC4_TYPE
-#    undef ML_SWIZZLE_COMPONENTS
-#else  /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
+#    if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
+#        define ML_SWIZZLE_COMPONENTS 3
+#        define ML_SWIZZLE_VEC4_TYPE  vec4
+#        include "swizzle.inl"
+#        undef ML_SWIZZLE_VEC4_TYPE
+#        undef ML_SWIZZLE_COMPONENTS
+#    else  /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
     /* projection onto first components */
     vec2 xy() const
     {
         return {x, y};
     }
-#endif /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
+#    endif /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
 
     /* special vectors. */
     static vec3 zero()
@@ -230,5 +233,16 @@ inline vec3 operator*(float s, const vec3& v)
 {
     return v * s;
 }
+
+#else /* ML_IMPLEMENT_SWIZZLE_FUNCTIONS */
+
+/* vector swizzle notation implementation */
+#    define ML_SWIZZLE_COMPONENTS 3
+#    define ML_SWIZZLE_TYPE       vec3
+#    include "swizzle.inl"
+#    undef ML_SWIZZLE_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+
+#endif /* ML_IMPLEMENT_SWIZZLE_FUNCTIONS */
 
 } /* namespace ml */

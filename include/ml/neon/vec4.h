@@ -1,21 +1,28 @@
 /**
  * ml - simple header-only mathematics library
  *
- * 4d vector implementation.
+ * 4d vector implementation using ARM NEON intrinsics (ARMv8).
  *
  * \author Felix Lubbe
- * \copyright Copyright (c) 2021
+ * \copyright Copyright (c) 2026
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
 
 namespace ml
 {
 
+namespace simd
+{
+
+/* skip vec4 definition when implementing swizzle notation. */
+#ifndef ML_IMPLEMENT_SWIZZLE_FUNCTIONS
+
 /** 4-dimensional vector */
 struct vec4
 {
     union
     {
+        float32x4_t data;
         struct
         {
             float x, y, z, w;
@@ -31,51 +38,42 @@ struct vec4
     };
 
     vec4()
-    : x{0}
-    , y{0}
-    , z{0}
-    , w{1}
+    : data{vdupq_n_f32(0.f)}
+    {
+    }
+
+    explicit vec4(float32x4_t in_data)
+    : data(in_data)
     {
     }
 
     explicit vec4(const vec3& v)
-    : x{v.x}
-    , y{v.y}
-    , z{v.z}
-    , w{1}
     {
+        float elems[4] = {v.x, v.y, v.z, 1};
+        data = vld1q_f32(elems);
     }
 
     vec4(const vec3& v, float in_w)
-    : x{v.x}
-    , y{v.y}
-    , z{v.z}
-    , w{in_w}
     {
+        float elems[4] = {v.x, v.y, v.z, in_w};
+        data = vld1q_f32(elems);
     }
 
     vec4(float in_x, float in_y, float in_z)
-    : x{in_x}
-    , y{in_y}
-    , z{in_z}
-    , w{1}
     {
+        float elems[4] = {in_x, in_y, in_z, 1};
+        data = vld1q_f32(elems);
     }
 
     vec4(float in_x, float in_y, float in_z, float in_w)
-    : x{in_x}
-    , y{in_y}
-    , z{in_z}
-    , w{in_w}
     {
+        float elems[4] = {in_x, in_y, in_z, in_w};
+        data = vld1q_f32(elems);
     }
 
-    explicit vec4(const float (&v)[4])
+    explicit vec4(const float* v)
     {
-        x = v[0];
-        y = v[1];
-        z = v[2];
-        w = v[3];
+        data = vld1q_f32(v);
     }
 
     vec4(const vec4&) = default;
@@ -84,20 +82,19 @@ struct vec4
     vec4& operator=(const vec4&) = default;
     vec4& operator=(vec4&&) = default;
 
+    /** divide xyz by w and store 1/w in w */
     void divide_by_w()
     {
         assert(w != 0.f);
 
         const auto one_over_w = 1.0f / w;
-        x *= one_over_w;
-        y *= one_over_w;
-        z *= one_over_w;
+        data = vmulq_f32(data, vdupq_n_f32(one_over_w));
         w = one_over_w;
     }
 
     bool is_zero() const
     {
-        return x == 0 && y == 0 && z == 0 && w == 0;
+        return vminvq_u32(vceqq_f32(data, vdupq_n_f32(0.0f))) != 0;
     }
 
     float length_squared() const
@@ -107,11 +104,7 @@ struct vec4
 
     float length() const
     {
-#ifdef __GNUC__
         return sqrtf(length_squared());
-#else
-        return std::sqrtf(length_squared());
-#endif
     }
 
     float one_over_length() const
@@ -126,64 +119,76 @@ struct vec4
 
     float dot_product(const vec4& v) const
     {
-        return x * v.x + y * v.y + z * v.z + w * v.w;
+        return vaddvq_f32(vmulq_f32(data, v.data));
     }
+
     vec4 hadamard_product(const vec4& v) const
     {
-        return {x * v.x, y * v.y, z * v.z, w * v.w};
+        return vec4{vmulq_f32(data, v.data)};
     }
 
     vec4 scale(float s) const
     {
-        return {x * s, y * s, z * s, w * s};
+        return vec4{vmulq_n_f32(data, s)};
     }
 
     void normalize()
     {
         /* one_over_length is safe to call on zero vectors - no check needed. */
-        *this = *this * one_over_length();
+        const auto inv = one_over_length();
+        data = vmulq_f32(data, vdupq_n_f32(inv));
     }
     vec4 normalized() const
     {
-        return *this * one_over_length();
+        vec4 v{*this};
+        v.normalize();
+        return v;
     }
 
     /* operators. */
     vec4 operator+(const vec4& v) const
     {
-        return {x + v.x, y + v.y, z + v.z, w + v.w};
+        return vec4{vaddq_f32(data, v.data)};
     }
+
     vec4 operator+(float s) const
     {
-        return {x + s, y + s, z + s, w + s};
+        return vec4{vaddq_f32(data, vdupq_n_f32(s))};
     }
+
     vec4 operator-(const vec4& v) const
     {
-        return {x - v.x, y - v.y, z - v.z, w - v.w};
+        return vec4{vsubq_f32(data, v.data)};
     }
+
     vec4 operator-(float s) const
     {
-        return {x - s, y - s, z - s, w - s};
+        return vec4{vsubq_f32(data, vdupq_n_f32(s))};
     }
+
     vec4 operator-() const
     {
-        return {-x, -y, -z, -w};
+        return vec4{vnegq_f32(data)};
     }
-    vec4 operator*(float s) const
-    {
-        return scale(s);
-    }
+
     vec4 operator*(const vec4& v) const
     {
         return hadamard_product(v);
     }
+
+    vec4 operator*(float s) const
+    {
+        return scale(s);
+    }
+
     vec4 operator/(float s) const
     {
         return scale(1.0f / s);
     }
-    vec4 operator/(const vec4& v) const
+
+    vec4 operator/(const vec4& other) const
     {
-        return {x / v.x, y / v.y, z / v.z, w / v.w};
+        return vec4{vdivq_f32(data, other.data)};
     }
 
     vec4& operator+=(const vec4& v)
@@ -191,6 +196,7 @@ struct vec4
         *this = *this + v;
         return *this;
     }
+
     vec4& operator-=(const vec4& v)
     {
         *this = *this - v;
@@ -203,31 +209,27 @@ struct vec4
         return *this;
     }
 
-    vec4& operator/=(const vec4& v)
+    vec4& operator*=(float s)
     {
-        *this = *this / v;
+        *this = scale(s);
         return *this;
     }
 
-    vec4& operator*=(float s)
-    {
-        *this = *this * s;
-        return *this;
-    }
     vec4& operator/=(float s)
     {
-        *this = *this / s;
+        *this = scale(1.0f / s);
         return *this;
     }
 
     /* exact comparisons */
     bool operator==(const vec4& v) const
     {
-        return x == v.x && y == v.y && z == v.z && w == v.w;
+        return vminvq_u32(vreinterpretq_u32_s32(vceqq_f32(data, v.data))) != 0;
     }
+
     bool operator!=(const vec4& v) const
     {
-        return x != v.x || y != v.y || z != v.z || w != v.w;
+        return !(*this == v);
     }
 
     /* access. */
@@ -242,13 +244,13 @@ struct vec4
         return (&x)[c];
     }
 
-#if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
-#    define ML_SWIZZLE_COMPONENTS 4
-#    define ML_SWIZZLE_VEC4_TYPE  vec4
-#    include "../swizzle.inl"
-#    undef ML_SWIZZLE_VEC4_TYPE
-#    undef ML_SWIZZLE_COMPONENTS
-#else /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
+#    if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
+#        define ML_SWIZZLE_COMPONENTS 4
+#        define ML_SWIZZLE_VEC4_TYPE  vec4
+#        include "../swizzle.inl"
+#        undef ML_SWIZZLE_VEC4_TYPE
+#        undef ML_SWIZZLE_COMPONENTS
+#    else /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
     vec2 xy() const
     {
         return {x, y};
@@ -258,18 +260,17 @@ struct vec4
     {
         return {x, y, z};
     }
-#endif
+#    endif
 
     /* special vectors. */
     static vec4 zero()
     {
-        // note that by default w is initialized to 1, so we initialize the vector explicitly.
-        return {0, 0, 0, 0};
+        return vec4{vdupq_n_f32(0.0f)};
     }
 
     static vec4 one()
     {
-        return {1, 1, 1, 1};
+        return vec4{vdupq_n_f32(1.0f)};
     }
 };
 
@@ -277,5 +278,18 @@ inline vec4 operator*(float s, const vec4& v)
 {
     return v * s;
 }
+
+#else /* ML_IMPLEMENT_SWIZZLE_FUNCTIONS */
+
+/* vector swizzle notation implementation */
+#    define ML_SWIZZLE_COMPONENTS 4
+#    define ML_SWIZZLE_TYPE       vec4
+#    include "../swizzle.inl"
+#    undef ML_SWIZZLE_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+
+#endif /* ML_IMPLEMENT_SWIZZLE_FUNCTIONS */
+
+} /* namespace simd */
 
 } /* namespace ml */

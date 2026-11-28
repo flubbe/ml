@@ -1,25 +1,27 @@
 /**
  * ml - simple header-only mathematics library
  *
- * 4d vector implementation using SSE intrinsics.
+ * 4d vector implementation.
  *
  * \author Felix Lubbe
- * \copyright Copyright (c) 2021
+ * \copyright Copyright (c) 2026
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
 
 namespace ml
 {
 
-namespace simd
+namespace scalar
 {
+
+/* skip vec4 definition when implementing swizzle notation. */
+#ifndef ML_IMPLEMENT_SWIZZLE_FUNCTIONS
 
 /** 4-dimensional vector */
 struct vec4
 {
     union
     {
-        __m128 data;
         struct
         {
             float x, y, z, w;
@@ -35,38 +37,51 @@ struct vec4
     };
 
     vec4()
-    : data{_mm_set_ps(1.f, 0.f, 0.f, 0.f)}
-    {
-    }
-
-    explicit vec4(__m128 in_data)
-    : data(in_data)
+    : x{0}
+    , y{0}
+    , z{0}
+    , w{1}
     {
     }
 
     explicit vec4(const vec3& v)
+    : x{v.x}
+    , y{v.y}
+    , z{v.z}
+    , w{1}
     {
-        data = _mm_set_ps(1, v.z, v.y, v.x);
     }
 
     vec4(const vec3& v, float in_w)
+    : x{v.x}
+    , y{v.y}
+    , z{v.z}
+    , w{in_w}
     {
-        data = _mm_set_ps(in_w, v.z, v.y, v.x);
     }
 
     vec4(float in_x, float in_y, float in_z)
+    : x{in_x}
+    , y{in_y}
+    , z{in_z}
+    , w{1}
     {
-        data = _mm_set_ps(1, in_z, in_y, in_x);
     }
 
     vec4(float in_x, float in_y, float in_z, float in_w)
+    : x{in_x}
+    , y{in_y}
+    , z{in_z}
+    , w{in_w}
     {
-        data = _mm_set_ps(in_w, in_z, in_y, in_x);
     }
 
-    explicit vec4(const float (&v)[4])
+    explicit vec4(const float* v)
     {
-        data = _mm_loadu_ps(v);
+        x = v[0];
+        y = v[1];
+        z = v[2];
+        w = v[3];
     }
 
     vec4(const vec4&) = default;
@@ -75,19 +90,20 @@ struct vec4
     vec4& operator=(const vec4&) = default;
     vec4& operator=(vec4&&) = default;
 
-    /** divide xyz by w and store 1/w in w */
     void divide_by_w()
     {
         assert(w != 0.f);
 
         const auto one_over_w = 1.0f / w;
-        data = _mm_mul_ps(data, _mm_set_ps1(one_over_w));
+        x *= one_over_w;
+        y *= one_over_w;
+        z *= one_over_w;
         w = one_over_w;
     }
 
     bool is_zero() const
     {
-        return _mm_movemask_ps(_mm_cmpeq_ps(data, _mm_set_ps1(0.0f))) == 0xF;
+        return x == 0 && y == 0 && z == 0 && w == 0;
     }
 
     float length_squared() const
@@ -97,11 +113,11 @@ struct vec4
 
     float length() const
     {
-#ifdef __GNUC__
+#    ifdef __GNUC__
         return sqrtf(length_squared());
-#else
+#    else
         return std::sqrtf(length_squared());
-#endif
+#    endif
     }
 
     float one_over_length() const
@@ -116,88 +132,64 @@ struct vec4
 
     float dot_product(const vec4& v) const
     {
-        // see answer here: https://stackoverflow.com/questions/6996764/fastest-way-to-do-horizontal-sse-vector-sum-or-other-reduction
-
-#if defined(ML_USE_SSE41)
-        return _mm_cvtss_f32(_mm_dp_ps(data, v.data, 0xff));
-#elif defined(ML_USE_SSE3)
-        // multiply entries
-        __m128 r1 = _mm_mul_ps(data, v.data);
-
-        __m128 shuf = _mm_movehdup_ps(r1);    // broadcast elements 3,1 to 2,0
-        __m128 sums = _mm_add_ps(r1, shuf);
-        shuf = _mm_movehl_ps(shuf, sums);    // high half -> low half
-        sums = _mm_add_ss(sums, shuf);
-        return _mm_cvtss_f32(sums);
-#else /* otherwise use SSE1 */
-        // multiply entries
-        __m128 r1 = _mm_mul_ps(data, v.data);
-
-        // horizontal sum.
-        __m128 shuf = _mm_shuffle_ps(r1, r1, _MM_SHUFFLE(2, 3, 0, 1));
-        __m128 sums = _mm_add_ps(r1, shuf);
-        shuf = _mm_movehl_ps(shuf, sums);
-        sums = _mm_add_ss(sums, shuf);
-
-        return _mm_cvtss_f32(sums);
-#endif
+        return x * v.x + y * v.y + z * v.z + w * v.w;
     }
     vec4 hadamard_product(const vec4& v) const
     {
-        return vec4{_mm_mul_ps(data, v.data)};
+        return {x * v.x, y * v.y, z * v.z, w * v.w};
     }
 
     vec4 scale(float s) const
     {
-        return vec4{_mm_mul_ps(data, _mm_set1_ps(s))};
+        return {x * s, y * s, z * s, w * s};
     }
 
     void normalize()
     {
         /* one_over_length is safe to call on zero vectors - no check needed. */
-        *this = scale(one_over_length());
+        *this = *this * one_over_length();
     }
     vec4 normalized() const
     {
-        return scale(one_over_length());
+        return *this * one_over_length();
     }
 
     /* operators. */
     vec4 operator+(const vec4& v) const
     {
-        return vec4{_mm_add_ps(data, v.data)};
+        return {x + v.x, y + v.y, z + v.z, w + v.w};
     }
     vec4 operator+(float s) const
     {
-        return vec4{_mm_add_ps(data, _mm_set1_ps(s))};
+        return {x + s, y + s, z + s, w + s};
     }
     vec4 operator-(const vec4& v) const
     {
-        return vec4{_mm_sub_ps(data, v.data)};
+        return {x - v.x, y - v.y, z - v.z, w - v.w};
     }
     vec4 operator-(float s) const
     {
-        return vec4{_mm_sub_ps(data, _mm_set1_ps(s))};
+        return {x - s, y - s, z - s, w - s};
     }
     vec4 operator-() const
     {
-        return vec4{_mm_sub_ps(_mm_set1_ps(0.0f), data)};
-    }
-    vec4 operator*(const vec4& v) const
-    {
-        return hadamard_product(v);
+        return {-x, -y, -z, -w};
     }
     vec4 operator*(float s) const
     {
         return scale(s);
     }
+    vec4 operator*(const vec4& v) const
+    {
+        return hadamard_product(v);
+    }
     vec4 operator/(float s) const
     {
         return scale(1.0f / s);
     }
-    vec4 operator/(const vec4& other) const
+    vec4 operator/(const vec4& v) const
     {
-        return vec4{_mm_div_ps(data, other.data)};
+        return {x / v.x, y / v.y, z / v.z, w / v.w};
     }
 
     vec4& operator+=(const vec4& v)
@@ -217,25 +209,31 @@ struct vec4
         return *this;
     }
 
+    vec4& operator/=(const vec4& v)
+    {
+        *this = *this / v;
+        return *this;
+    }
+
     vec4& operator*=(float s)
     {
-        *this = scale(s);
+        *this = *this * s;
         return *this;
     }
     vec4& operator/=(float s)
     {
-        *this = scale(1.0f / s);
+        *this = *this / s;
         return *this;
     }
 
     /* exact comparisons */
     bool operator==(const vec4& v) const
     {
-        return _mm_movemask_ps(_mm_cmpeq_ps(data, v.data)) == 0xF;
+        return x == v.x && y == v.y && z == v.z && w == v.w;
     }
     bool operator!=(const vec4& v) const
     {
-        return _mm_movemask_ps(_mm_cmpneq_ps(data, v.data)) != 0;
+        return x != v.x || y != v.y || z != v.z || w != v.w;
     }
 
     /* access. */
@@ -250,13 +248,13 @@ struct vec4
         return (&x)[c];
     }
 
-#if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
-#    define ML_SWIZZLE_COMPONENTS 4
-#    define ML_SWIZZLE_VEC4_TYPE  vec4
-#    include "../swizzle.inl"
-#    undef ML_SWIZZLE_VEC4_TYPE
-#    undef ML_SWIZZLE_COMPONENTS
-#else /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
+#    if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
+#        define ML_SWIZZLE_COMPONENTS 4
+#        define ML_SWIZZLE_VEC4_TYPE  vec4
+#        include "../swizzle.inl"
+#        undef ML_SWIZZLE_VEC4_TYPE
+#        undef ML_SWIZZLE_COMPONENTS
+#    else /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
     vec2 xy() const
     {
         return {x, y};
@@ -266,18 +264,18 @@ struct vec4
     {
         return {x, y, z};
     }
-#endif
+#    endif
 
-    /*  special vectors. */
+    /* special vectors. */
     static vec4 zero()
     {
-        // note that by default w is initialized to 1, so we initialize the vector explicitely.
-        return vec4{_mm_set_ps1(0.0f)};
+        // note that by default w is initialized to 1, so we initialize the vector explicitly.
+        return {0, 0, 0, 0};
     }
 
     static vec4 one()
     {
-        return vec4{_mm_set_ps1(1.0f)};
+        return {1, 1, 1, 1};
     }
 };
 
@@ -286,6 +284,17 @@ inline vec4 operator*(float s, const vec4& v)
     return v * s;
 }
 
-} /* namespace simd */
+#else /* ML_IMPLEMENT_SWIZZLE_FUNCTIONS */
+
+/* vector swizzle notation implementation */
+#    define ML_SWIZZLE_COMPONENTS 4
+#    define ML_SWIZZLE_TYPE       vec4
+#    include "../swizzle.inl"
+#    undef ML_SWIZZLE_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+
+#endif /* ML_IMPLEMENT_SWIZZLE_FUNCTIONS */
+
+} /* namespace scalar */
 
 } /* namespace ml */

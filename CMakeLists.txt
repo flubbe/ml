@@ -5,6 +5,8 @@ project(ml LANGUAGES CXX)
 
 option(ML_NO_BOOST "Disable Boost-dependent parts of ml" OFF)
 
+option(ML_BUILD_BENCHMARKS "Build the Google Benchmark performance benchmarks" OFF)
+
 add_library(ml INTERFACE)
 
 include(CTest)
@@ -53,9 +55,17 @@ add_library(ml_simd INTERFACE)
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm64|aarch64|ARM64)$")
     message(STATUS "Detected ARM64 architecture")
+
+    set(ML_SIMD_BACKEND NEON)
+    target_compile_options(ml_simd INTERFACE
+        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:
+        -march=armv8-a+simd
+        >
+    )
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|AMD64)$")
     message(STATUS "Detected x86_64 architecture")
 
+    set(ML_SIMD_BACKEND SSE)
     target_compile_options(ml_simd INTERFACE
         $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:
         -msse4.1
@@ -132,15 +142,15 @@ if(BUILD_TESTING)
     #
     find_package(Boost CONFIG REQUIRED COMPONENTS unit_test_framework)
 
-    add_executable(test_math test/math.cpp)
-    target_link_libraries(test_math PRIVATE
+    add_executable(test_closed_interval test/test_closed_interval.cpp)
+    target_link_libraries(test_closed_interval PRIVATE
         ml
         Boost::unit_test_framework
     )
-    target_compile_definitions(test_math PRIVATE BOOST_TEST_DYN_LINK)
-    add_test(NAME math COMMAND test_math)
+    target_compile_definitions(test_closed_interval PRIVATE BOOST_TEST_DYN_LINK)
+    add_test(NAME closed_interval COMMAND test_closed_interval)
 
-    add_executable(test_cnl_support test/cnl_support.cpp)
+    add_executable(test_cnl_support test/test_cnl_support.cpp)
     target_link_libraries(test_cnl_support PRIVATE
         ml
         Boost::unit_test_framework
@@ -148,11 +158,107 @@ if(BUILD_TESTING)
     target_compile_definitions(test_cnl_support PRIVATE BOOST_TEST_DYN_LINK)
     add_test(NAME cnl_support COMMAND test_cnl_support)
 
-    add_executable(test_closed_interval test/closed_interval.cpp)
-    target_link_libraries(test_closed_interval PRIVATE
+    add_executable(test_functions test/test_functions.cpp)
+    target_link_libraries(test_functions PRIVATE
         ml
         Boost::unit_test_framework
     )
-    target_compile_definitions(test_closed_interval PRIVATE BOOST_TEST_DYN_LINK)
-    add_test(NAME closed_interval COMMAND test_closed_interval)
+    target_compile_definitions(test_functions PRIVATE BOOST_TEST_DYN_LINK)
+    add_test(NAME functions COMMAND test_functions)
+
+    add_executable(test_vec2 test/test_vec2.cpp)
+    target_link_libraries(test_vec2 PRIVATE
+        ml
+        Boost::unit_test_framework
+    )
+    target_compile_definitions(test_vec2 PRIVATE BOOST_TEST_DYN_LINK)
+    add_test(NAME vec2 COMMAND test_vec2)
+
+    add_executable(test_tvec2 test/test_tvec2.cpp)
+    target_link_libraries(test_tvec2 PRIVATE
+        ml
+        Boost::unit_test_framework
+    )
+    target_compile_definitions(test_tvec2 PRIVATE BOOST_TEST_DYN_LINK)
+    add_test(NAME tvec2 COMMAND test_tvec2)
+
+    add_executable(test_vec2_fixed test/test_vec2_fixed.cpp)
+    target_link_libraries(test_vec2_fixed PRIVATE
+        ml
+        Boost::unit_test_framework
+    )
+    target_compile_definitions(test_vec2_fixed PRIVATE BOOST_TEST_DYN_LINK)
+    add_test(NAME vec2_fixed COMMAND test_vec2_fixed)
+
+    add_executable(test_vec4 test/test_vec4.cpp)
+    target_link_libraries(test_vec4 PRIVATE
+        ml
+        Boost::unit_test_framework
+    )
+    target_compile_definitions(test_vec4 PRIVATE BOOST_TEST_DYN_LINK)
+    add_test(NAME vec4 COMMAND test_vec4)
+
+    if(ML_SIMD_BACKEND STREQUAL "SSE" OR ML_SIMD_BACKEND STREQUAL "NEON")
+        add_executable(test_vec4_simd test/test_vec4_simd.cpp)
+        target_link_libraries(test_vec4_simd PRIVATE
+            ml
+            Boost::unit_test_framework
+        )
+        target_compile_definitions(test_vec4_simd PRIVATE BOOST_TEST_DYN_LINK)
+        add_test(NAME vec4_simd COMMAND test_vec4_simd)
+    endif()
+
+    add_executable(test_mat3x3 test/test_mat3x3.cpp)
+    target_link_libraries(test_mat3x3 PRIVATE
+        ml
+        Boost::unit_test_framework
+    )
+    target_compile_definitions(test_mat3x3 PRIVATE BOOST_TEST_DYN_LINK)
+    add_test(NAME mat3x3 COMMAND test_mat3x3)
+
+    add_executable(test_mat4x4 test/test_mat4x4.cpp)
+    target_link_libraries(test_mat4x4 PRIVATE
+        ml
+        Boost::unit_test_framework
+    )
+    target_compile_definitions(test_mat4x4 PRIVATE BOOST_TEST_DYN_LINK)
+    add_test(NAME mat4x4 COMMAND test_mat4x4)
+
+    if(ML_SIMD_BACKEND STREQUAL "SSE" OR ML_SIMD_BACKEND STREQUAL "NEON")
+        add_executable(test_mat4x4_simd test/test_mat4x4_simd.cpp)
+        target_link_libraries(test_mat4x4_simd PRIVATE
+            ml
+            Boost::unit_test_framework
+        )
+        target_compile_definitions(test_mat4x4_simd PRIVATE BOOST_TEST_DYN_LINK)
+        add_test(NAME mat4x4_simd COMMAND test_mat4x4_simd)
+    endif()
+
+endif()
+
+#
+# Benchmarks
+#
+if(ML_BUILD_BENCHMARKS)
+    # Keep Google Benchmark from configuring its own (gtest-based) test suite.
+    set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Build the Google Benchmark test suite" FORCE)
+
+    FetchContent_Declare(
+        benchmark_src
+        GIT_REPOSITORY https://github.com/google/benchmark.git
+        GIT_TAG v1.8.3
+    )
+    FetchContent_MakeAvailable(benchmark_src)
+
+    add_executable(bench_vec4 bench/bench_vec4.cpp)
+    target_link_libraries(bench_vec4 PRIVATE
+        ml
+        benchmark::benchmark
+    )
+
+    add_executable(bench_mat4x4 bench/bench_mat4x4.cpp)
+    target_link_libraries(bench_mat4x4 PRIVATE
+        ml
+        benchmark::benchmark
+    )
 endif()

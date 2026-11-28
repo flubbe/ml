@@ -5,45 +5,24 @@
  *
  * The following preprocessor definitions can be used to configure the library:
  *
- *   ML_NO_DEPS:      don't include any dependencies and support functions.
- *                    equivalent to defining ML_NO_CPP, ML_NO_BOOST and ML_NO_CNL
- *   ML_NO_CPP:       don't include standard C++-headers.
  *   ML_NO_BOOST:     don't include boost headers.
  *   ML_NO_CNL:       don't include CNL support and headers.
  *
  * Further:
  *
- *   ML_NO_SIMD:      don't use SSE versions of vec4 and mat4x4
- *   ML_INCLUDE_SIMD: provide SSE and non-SSE versions of vec4 and mat4x4
+ *   ML_NO_SIMD:      don't use SIMD versions of vec4 and mat4x4
  *   ML_NO_SWIZZLE:   don't define swizzle functions for vector component access.
  *
  * \author Felix Lubbe
- * \copyright Copyright (c) 2021
+ * \copyright Copyright (c) 2026
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
 
 #pragma once
 
-/* SIMD support is only available for x86 for now. */
-#if !defined(__x86_64__) && !defined(_M_X64)
-#    define ML_NO_SIMD
-#endif
-
-#ifdef ML_NO_DEPS
-
-#    define ML_NO_CPP
-#    define ML_NO_BOOST
-#    define ML_NO_CNL
-
-#endif /* ML_NO_DEPS */
-
-#ifndef ML_NO_CPP
-
 /* C++ headers */
-#    include <algorithm>
-#    include <cmath>
-
-#endif /* ML_NO_CPP */
+#include <algorithm>
+#include <cmath>
 
 #ifndef ML_NO_BOOST
 
@@ -56,8 +35,8 @@
 #ifndef ML_NO_CNL
 
 /* CNL for most fixed-point types. */
-#    include "cnl/static_number.h"
-#    include "cnl/num_traits.h"
+#    include <cnl/static_number.h>
+#    include <cnl/num_traits.h>
 
 /* CNL support functions. */
 #    include "cnl_support.h"
@@ -67,10 +46,10 @@
 /* fixed-point unit interval. */
 #include "closed_unit_interval.h"
 
-/* enable SIMD (if not requested to disable or just include it) */
-#if !defined(ML_NO_SIMD) && !defined(ML_INCLUDE_SIMD)
+/* enable SIMD (if not requested to disable it). */
+#if !defined(ML_NO_SIMD)
 #    define ML_USE_SIMD
-#endif /* IML_INCLUDE_SIMD */
+#endif /* ML_NO_SIMD */
 
 /* check if we should include vector swizzle functions. */
 #if !defined(ML_NO_SWIZZLE)
@@ -80,11 +59,11 @@
 /*
  * SIMD.
  */
-#if defined(ML_USE_SIMD) || defined(ML_INCLUDE_SIMD)
+#if defined(ML_USE_SIMD)
 
 #    if defined(__x86_64__) || defined(_M_X64) || defined(__i386) || defined(_M_IX86)
 
-#        define ML_SIMD_X86
+#        define ML_SIMD_SSE
 
 #        define ML_USE_SSE41
 #        define ML_USE_SSE3
@@ -112,7 +91,7 @@
 
 #    endif
 
-#endif /* defined(ML_USE_SIMD) || defined(ML_INCLUDE_SIMD) */
+#endif /* defined(ML_USE_SIMD) */
 
 /*
  * include libarary headers.
@@ -139,10 +118,13 @@
 #include "mat3x3.h"
 #include "mat4x4.h"
 
-/* vector swizzle notation implementation */
 #if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
-#    include "swizzle_impl.h"
-#endif /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
+#    define ML_IMPLEMENT_SWIZZLE_FUNCTIONS
+#    include "vec2.h"
+#    include "vec3.h"
+#    include "vec4.h"
+#    undef ML_IMPLEMENT_SWIZZLE_FUNCTIONS
+#endif
 
 /* templated 2d vector class for easy handling of 2d composite types. */
 #include "tvec2.h"

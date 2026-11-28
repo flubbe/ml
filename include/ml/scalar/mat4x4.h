@@ -4,11 +4,14 @@
  * 4d matrix implementation.
  *
  * \author Felix Lubbe
- * \copyright Copyright (c) 2021
+ * \copyright Copyright (c) 2026
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
 
 namespace ml
+{
+
+namespace scalar
 {
 
 /** 4x4 matrix */
@@ -284,5 +287,7 @@ inline mat4x4 operator*(float s, const mat4x4& m)
 {
     return m * s;
 }
+
+} /* namespace scalar */
 
 } /* namespace ml */
