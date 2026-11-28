@@ -65,7 +65,8 @@ jobs:
           CXX: ${{ matrix.cxx }}
         run: |
           cmake -B build \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DML_BUILD_BENCHMARKS=ON
 
       - name: Build
         run: |
@@ -78,3 +79,8 @@ jobs:
           ctest --test-dir build \
             --output-on-failure \
             -C ${{ matrix.build_type }}
+
+      - name: Run benchmarks
+        run: |
+          bin/bench_vec4
+          bin/bench_mat4x4

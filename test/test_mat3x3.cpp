@@ -5,7 +5,7 @@
 #include <boost/test/unit_test.hpp>
 
 // enable loading of SIMD types.
-#define ML_INCLUDE_SIMD
+#define ML_USE_SIMD
 
 /* user headers. */
 #include "ml/all.h"

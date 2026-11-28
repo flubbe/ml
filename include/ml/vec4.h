@@ -8,8 +8,7 @@
  * \license Distributed under the MIT software license (see accompanying LICENSE.txt).
  */
 
-#ifndef ML_VEC4_H
-#define ML_VEC4_H
+#include "scalar/vec4.h"
 
 #ifndef ML_NO_SIMD
 #    if defined(ML_SIMD_NEON)
@@ -21,27 +20,18 @@
 #    endif
 #endif
 
-/* Check if we should define vector swizzle functions. */
-#if !defined(ML_NO_SWIZZLE)
-#    define ML_DEFINE_SWIZZLE_FUNCTIONS
-#endif
-
 #if defined(ML_USE_SIMD)
-/* ml::vec4 is the SIMD version */
+
 namespace ml
 {
 using vec4 = simd::vec4;
 };
 
-#elif defined(ML_INCLUDE_SIMD)
-/* Both SIMD version (ml::simd::vec4) and scalar version */
-#    include "scalar/vec4.h"
-#else
-/* Scalar-only */
+#else /* ML_NO_SIMD */
+
 namespace ml
 {
-using vec4 = simd::vec4;
-};
-#endif
+using vec4 = scalar::vec4;
+}
 
-#endif /* ML_VEC4_H */
+#endif /* ML_NO_SIMD */

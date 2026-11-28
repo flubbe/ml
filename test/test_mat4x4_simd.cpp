@@ -7,9 +7,6 @@
 #define BOOST_TEST_MODULE math library test
 #include <boost/test/unit_test.hpp>
 
-// enable loading of SIMD types.
-#define ML_INCLUDE_SIMD
-
 /* user headers. */
 #include "ml/all.h"
 #include "utils.h"
@@ -18,7 +15,7 @@ BOOST_AUTO_TEST_SUITE(mat4x4_simd)
 
 // compare non-simd and simd vec4
 bool operator==(
-  const ml::vec4& v1,
+  const ml::scalar::vec4& v1,
   const ml::simd::vec4& v2)
 {
     return v1.x == v2.x
@@ -29,7 +26,7 @@ bool operator==(
 
 // compare non-simd and simd mat4x4
 bool operator==(
-  const ml::mat4x4& m1,
+  const ml::scalar::mat4x4& m1,
   const ml::simd::mat4x4& m2)
 {
     return m1.rows[0] == m2.rows[0]
@@ -40,14 +37,14 @@ bool operator==(
 
 // initialize simd vec4 from non-simd vec4
 ml::simd::vec4 vec_simd_init(
-  const ml::vec4& v)
+  const ml::scalar::vec4& v)
 {
     return {v.x, v.y, v.z, v.w};
 }
 
 // initialize simd mat4x4 from non-simd mat4x4
 ml::simd::mat4x4 mat_simd_init(
-  const ml::mat4x4& m)
+  const ml::scalar::mat4x4& m)
 {
     return {vec_simd_init(m.rows[0]),
             vec_simd_init(m.rows[1]),
@@ -57,7 +54,7 @@ ml::simd::mat4x4 mat_simd_init(
 
 BOOST_AUTO_TEST_CASE(multiplication)
 {
-    ml::mat4x4 m1{
+    ml::scalar::mat4x4 m1{
       {1, 2, 3, 4},
       {2, 4, 3, 1},
       {3, 1, 4, 2},
@@ -112,12 +109,12 @@ BOOST_AUTO_TEST_CASE(randomized_multiplication)
     // random multiplication tests.
     for(int i = 0; i < 1000; ++i)
     {
-        ml::mat4x4 rm1 = get_random_mat<ml::mat4x4, ml::vec4>();
-        ml::mat4x4 rm2 = get_random_mat<ml::mat4x4, ml::vec4>();
+        ml::scalar::mat4x4 rm1 = get_random_mat<ml::scalar::mat4x4, ml::scalar::vec4>();
+        ml::scalar::mat4x4 rm2 = get_random_mat<ml::scalar::mat4x4, ml::scalar::vec4>();
 
         ml::simd::mat4x4 rm1_simd = mat_simd_init(rm1), rm2_simd = mat_simd_init(rm2);
 
-        ml::mat4x4 res = rm1 * rm2;
+        ml::scalar::mat4x4 res = rm1 * rm2;
         ml::simd::mat4x4 res_simd = rm1_simd * rm2_simd;
 
         BOOST_REQUIRE(res.rows[0] == res_simd.rows[0]);

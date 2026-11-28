@@ -11,6 +11,9 @@
 namespace ml
 {
 
+namespace scalar
+{
+
 /** 4x4 matrix */
 struct mat4x4
 {
@@ -284,5 +287,7 @@ inline mat4x4 operator*(float s, const mat4x4& m)
 {
     return m * s;
 }
+
+} /* namespace scalar */
 
 } /* namespace ml */

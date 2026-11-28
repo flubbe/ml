@@ -84,8 +84,6 @@ inline std::ostream& operator<<(
     return os << "<none>";
 }
 
-#ifdef ML_INCLUDE_SIMD
-
 namespace simd
 {
 
@@ -113,7 +111,5 @@ inline std::ostream& operator<<(
 }
 
 }    // namespace simd
-
-#endif
 
 }    // namespace ml

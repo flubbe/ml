@@ -82,33 +82,23 @@ struct mat4x4
     }
     mat4x4 operator*(const mat4x4& m) const
     {
-        auto multiply_row = [](float32x4_t row,
-                               const mat4x4& m) -> float32x4_t
-        {
-            const float32x4_t x = vmulq_n_f32(m.rows[0].data, vgetq_lane_f32(row, 0));
-            const float32x4_t y = vmulq_n_f32(m.rows[1].data, vgetq_lane_f32(row, 1));
-            const float32x4_t z = vmulq_n_f32(m.rows[2].data, vgetq_lane_f32(row, 2));
-            const float32x4_t w = vmulq_n_f32(m.rows[3].data, vgetq_lane_f32(row, 3));
-
-            return vaddq_f32(
-              vaddq_f32(x, y),
-              vaddq_f32(z, w));
-        };
-
         mat4x4 res;
-        for(std::size_t i = 0; i < 4; ++i)
+        for(int i = 0; i < 4; ++i)
         {
-            res.rows[i].data = multiply_row(rows[i].data, m);
+            res.rows[i].data = matmul_row(rows[i], m);
         }
-
         return res;
     }
 
     /* matrix-vector multiplication. */
     vec4 operator*(const vec4& v) const
     {
-        return {rows[0].dot_product(v), rows[1].dot_product(v),
-                rows[2].dot_product(v), rows[3].dot_product(v)};
+        vec4 res;
+        for(int i = 0; i < 4; ++i)
+        {
+            res[i] = matmul_row_dot(rows[i], v);
+        }
+        return res;
     }
 
     /* scaling */
@@ -236,6 +226,31 @@ struct mat4x4
     }
 
 private:
+    /* Multiply a row by matrix m: result = row * m (as SIMD). */
+    static float32x4_t matmul_row(vec4 row, const mat4x4& m)
+    {
+        const float32x4_t mat0 = m.rows[0].data;
+        const float32x4_t mat1 = m.rows[1].data;
+        const float32x4_t mat2 = m.rows[2].data;
+        const float32x4_t mat3 = m.rows[3].data;
+
+        float32x4_t result = vmulq_n_f32(mat0, vgetq_lane_f32(row.data, 0));
+        result = vmlaq_n_f32(result, mat1, vgetq_lane_f32(row.data, 1));
+        result = vmlaq_n_f32(result, mat2, vgetq_lane_f32(row.data, 2));
+        result = vmlaq_n_f32(result, mat3, vgetq_lane_f32(row.data, 3));
+
+        return result;
+    }
+
+    /* Compute dot-product of row with a column of the other matrix. */
+    static float matmul_row_dot(const vec4& row, const vec4& col)
+    {
+        const float32x4_t prod = vmulq_f32(row.data, col.data);
+        const float32x2_t lo = vget_low_f32(prod);
+        const float32x2_t hi = vget_high_f32(prod);
+        return vget_lane_f32(vadd_f32(lo, hi), 0);
+    }
+
     /**
      * Calculate the inverse and determinant of a matrix.
      * Based on the Intel paper "Streaming SIMD Extensions - Inverse of 4x4 Matrix".

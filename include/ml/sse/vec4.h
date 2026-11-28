@@ -14,6 +14,9 @@ namespace ml
 namespace simd
 {
 
+/* skip vec4 definition when implementing swizzle notation. */
+#ifndef ML_IMPLEMENT_SWIZZLE_FUNCTIONS
+
 /** 4-dimensional vector */
 struct vec4
 {
@@ -64,7 +67,7 @@ struct vec4
         data = _mm_set_ps(in_w, in_z, in_y, in_x);
     }
 
-    explicit vec4(const float (&v)[4])
+    explicit vec4(const float* v)
     {
         data = _mm_loadu_ps(v);
     }
@@ -97,11 +100,11 @@ struct vec4
 
     float length() const
     {
-#ifdef __GNUC__
+#    ifdef __GNUC__
         return sqrtf(length_squared());
-#else
+#    else
         return std::sqrtf(length_squared());
-#endif
+#    endif
     }
 
     float one_over_length() const
@@ -118,9 +121,9 @@ struct vec4
     {
         // see answer here: https://stackoverflow.com/questions/6996764/fastest-way-to-do-horizontal-sse-vector-sum-or-other-reduction
 
-#if defined(ML_USE_SSE41)
+#    if defined(ML_USE_SSE41)
         return _mm_cvtss_f32(_mm_dp_ps(data, v.data, 0xff));
-#elif defined(ML_USE_SSE3)
+#    elif defined(ML_USE_SSE3)
         // multiply entries
         __m128 r1 = _mm_mul_ps(data, v.data);
 
@@ -129,7 +132,7 @@ struct vec4
         shuf = _mm_movehl_ps(shuf, sums);    // high half -> low half
         sums = _mm_add_ss(sums, shuf);
         return _mm_cvtss_f32(sums);
-#else /* otherwise use SSE1 */
+#    else /* otherwise use SSE1 */
         // multiply entries
         __m128 r1 = _mm_mul_ps(data, v.data);
 
@@ -140,7 +143,7 @@ struct vec4
         sums = _mm_add_ss(sums, shuf);
 
         return _mm_cvtss_f32(sums);
-#endif
+#    endif
     }
     vec4 hadamard_product(const vec4& v) const
     {
@@ -250,13 +253,13 @@ struct vec4
         return (&x)[c];
     }
 
-#if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
-#    define ML_SWIZZLE_COMPONENTS 4
-#    define ML_SWIZZLE_VEC4_TYPE  vec4
-#    include "../swizzle.inl"
-#    undef ML_SWIZZLE_VEC4_TYPE
-#    undef ML_SWIZZLE_COMPONENTS
-#else /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
+#    if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
+#        define ML_SWIZZLE_COMPONENTS 4
+#        define ML_SWIZZLE_VEC4_TYPE  vec4
+#        include "../swizzle.inl"
+#        undef ML_SWIZZLE_VEC4_TYPE
+#        undef ML_SWIZZLE_COMPONENTS
+#    else /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
     vec2 xy() const
     {
         return {x, y};
@@ -266,7 +269,7 @@ struct vec4
     {
         return {x, y, z};
     }
-#endif
+#    endif
 
     /*  special vectors. */
     static vec4 zero()
@@ -285,6 +288,17 @@ inline vec4 operator*(float s, const vec4& v)
 {
     return v * s;
 }
+
+#else
+
+/* vector swizzle notation implementation */
+#    define ML_SWIZZLE_COMPONENTS 4
+#    define ML_SWIZZLE_TYPE       vec4
+#    include "../swizzle.inl"
+#    undef ML_SWIZZLE_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+
+#endif /* ML_IMPLEMENT_SWIZZLE_FUNCTIONS */
 
 } /* namespace simd */
 

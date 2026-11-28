@@ -5,6 +5,8 @@ project(ml LANGUAGES CXX)
 
 option(ML_NO_BOOST "Disable Boost-dependent parts of ml" OFF)
 
+option(ML_BUILD_BENCHMARKS "Build the Google Benchmark performance benchmarks" OFF)
+
 add_library(ml INTERFACE)
 
 include(CTest)
@@ -232,4 +234,31 @@ if(BUILD_TESTING)
         add_test(NAME mat4x4_simd COMMAND test_mat4x4_simd)
     endif()
 
+endif()
+
+#
+# Benchmarks
+#
+if(ML_BUILD_BENCHMARKS)
+    # Keep Google Benchmark from configuring its own (gtest-based) test suite.
+    set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Build the Google Benchmark test suite" FORCE)
+
+    FetchContent_Declare(
+        benchmark_src
+        GIT_REPOSITORY https://github.com/google/benchmark.git
+        GIT_TAG v1.8.3
+    )
+    FetchContent_MakeAvailable(benchmark_src)
+
+    add_executable(bench_vec4 bench/bench_vec4.cpp)
+    target_link_libraries(bench_vec4 PRIVATE
+        ml
+        benchmark::benchmark
+    )
+
+    add_executable(bench_mat4x4 bench/bench_mat4x4.cpp)
+    target_link_libraries(bench_mat4x4 PRIVATE
+        ml
+        benchmark::benchmark
+    )
 endif()

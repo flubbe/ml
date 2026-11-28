@@ -8,7 +8,7 @@
 #include <boost/test/unit_test.hpp>
 
 // enable loading of SIMD types.
-#define ML_INCLUDE_SIMD
+#define ML_USE_SIMD
 
 /* user headers. */
 #include "ml/all.h"
@@ -22,10 +22,6 @@ BOOST_AUTO_TEST_SUITE(vec4_simd)
 // paranoid checks.
 static_assert(sizeof(ml::simd::vec4) == 4 * sizeof(float));
 
-// check that we actually using both non-simd and simd types.
-static_assert(!std::is_same<ml::vec4, ml::simd::vec4>::value);
-static_assert(!std::is_same<ml::mat4x4, ml::simd::mat4x4>::value);
-
 BOOST_AUTO_TEST_CASE(initialization)
 {
     ml::simd::vec4 v1{1, 2, 3, 4};
@@ -38,7 +34,7 @@ BOOST_AUTO_TEST_CASE(initialization)
 
     float v[4] = {1, 2, 3, 4};
     ml::simd::vec4 v4{v};
-    ml::vec4 v5{v};
+    ml::scalar::vec4 v5{v};
 
     BOOST_TEST((v4.x == 1 && v4.y == 2 && v4.z == 3 && v4.w == 4));
     BOOST_TEST((v5.x == 1 && v5.y == 2 && v5.z == 3 && v5.w == 4));

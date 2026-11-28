@@ -11,6 +11,12 @@
 namespace ml
 {
 
+namespace scalar
+{
+
+/* skip vec4 definition when implementing swizzle notation. */
+#ifndef ML_IMPLEMENT_SWIZZLE_FUNCTIONS
+
 /** 4-dimensional vector */
 struct vec4
 {
@@ -70,7 +76,7 @@ struct vec4
     {
     }
 
-    explicit vec4(const float (&v)[4])
+    explicit vec4(const float* v)
     {
         x = v[0];
         y = v[1];
@@ -107,11 +113,11 @@ struct vec4
 
     float length() const
     {
-#ifdef __GNUC__
+#    ifdef __GNUC__
         return sqrtf(length_squared());
-#else
+#    else
         return std::sqrtf(length_squared());
-#endif
+#    endif
     }
 
     float one_over_length() const
@@ -242,13 +248,13 @@ struct vec4
         return (&x)[c];
     }
 
-#if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
-#    define ML_SWIZZLE_COMPONENTS 4
-#    define ML_SWIZZLE_VEC4_TYPE  vec4
-#    include "../swizzle.inl"
-#    undef ML_SWIZZLE_VEC4_TYPE
-#    undef ML_SWIZZLE_COMPONENTS
-#else /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
+#    if defined(ML_DEFINE_SWIZZLE_FUNCTIONS)
+#        define ML_SWIZZLE_COMPONENTS 4
+#        define ML_SWIZZLE_VEC4_TYPE  vec4
+#        include "../swizzle.inl"
+#        undef ML_SWIZZLE_VEC4_TYPE
+#        undef ML_SWIZZLE_COMPONENTS
+#    else /* defined(ML_DEFINE_SWIZZLE_FUNCTIONS) */
     vec2 xy() const
     {
         return {x, y};
@@ -258,7 +264,7 @@ struct vec4
     {
         return {x, y, z};
     }
-#endif
+#    endif
 
     /* special vectors. */
     static vec4 zero()
@@ -277,5 +283,18 @@ inline vec4 operator*(float s, const vec4& v)
 {
     return v * s;
 }
+
+#else /* ML_IMPLEMENT_SWIZZLE_FUNCTIONS */
+
+/* vector swizzle notation implementation */
+#    define ML_SWIZZLE_COMPONENTS 4
+#    define ML_SWIZZLE_TYPE       vec4
+#    include "../swizzle.inl"
+#    undef ML_SWIZZLE_TYPE
+#    undef ML_SWIZZLE_COMPONENTS
+
+#endif /* ML_IMPLEMENT_SWIZZLE_FUNCTIONS */
+
+} /* namespace scalar */
 
 } /* namespace ml */
